@@ -250,28 +250,30 @@ The free preview should show enough value to motivate payment, but not the compl
 
 Show:
 
-1. Business summary.
-2. Detected business type/offers.
-3. 3 missing customer questions.
-4. 3 FAQ examples.
-5. Blurred/locked sections preview.
-6. CTA: “Unlock full report — $19”.
+1. Overall Clarity Score (0–10) with the top 3 weakest categories.
+2. Business summary.
+3. Detected business type/offers.
+4. 3 missing customer questions.
+5. 3 FAQ examples.
+6. Blurred/locked sections preview.
+7. CTA: “Unlock full report — $19”.
 
 ### 8.2 Full report content
 
 Full report should include:
 
-1. Business summary.
-2. Detected services/products/offers.
-3. Likely customer intent.
-4. Questions already answered on the website.
-5. Missing customer questions.
-6. Priority gaps.
-7. Ready-to-publish FAQ.
-8. Website improvement checklist.
-9. Suggested copy blocks.
-10. HTML FAQ block.
-11. Markdown export.
+1. Clarity Score with the full category breakdown (all 9 categories).
+2. Business summary.
+3. Detected services/products/offers.
+4. Likely customer intent.
+5. Questions already answered on the analyzed page(s).
+6. Missing customer questions.
+7. Priority gaps.
+8. Ready-to-publish FAQ.
+9. Website improvement checklist.
+10. Suggested copy blocks.
+11. HTML FAQ block.
+12. Markdown export.
 
 ---
 
@@ -281,8 +283,8 @@ Full report should include:
 
 The report must separate:
 
-- Facts found on the site/manual text.
-- Reasonable customer questions not answered by the site.
+- Facts found on the analyzed page(s) / manual text.
+- Reasonable customer questions not clearly answered on the analyzed page(s).
 - Suggested copy that requires business confirmation.
 
 For example, if the website does not mention warranty, the report must not say:
@@ -293,6 +295,34 @@ It should say:
 
 > “Warranty information is not clearly stated. Add a warranty FAQ if applicable.”
 
+### Scope honesty rule
+
+In MVP we analyze only the homepage (plus optional manual context). The report
+must therefore never claim a fact is **absent from the whole website** — only
+that it is **not clearly answered on the page(s) we analyzed**.
+
+Use phrasing like:
+
+```text
+"Not clearly answered on the analyzed page"
+"Not stated on the homepage we reviewed"
+```
+
+Avoid phrasing like:
+
+```text
+"Your website does not have ..."
+"This is missing from your site"
+```
+
+Rationale: a dedicated `/faq`, `/pricing`, or `/about` page may already answer
+the question. Over-claiming creates false positives that destroy user trust.
+
+**Future extension:** once multi-page reading (v0.2) is added, the analyzed
+scope grows and this language can be relaxed accordingly. The `analyzedScope`
+field below records exactly what was read, so the wording can adapt
+automatically without changing the prompt contract.
+
 ### Confidence labels
 
 Each answer should have one of these labels:
@@ -301,6 +331,44 @@ Each answer should have one of these labels:
 FOUND_ON_SITE
 INFERRED_FROM_CONTEXT
 MISSING_NEEDS_CONFIRMATION
+```
+
+### Gap evaluation criteria (Clarity Scorecard)
+
+To keep the report concrete and non-generic, the model does not freely invent
+"problems." It evaluates the analyzed text against a fixed checklist of buyer
+clarity categories. This is the core of the product's value: a repeatable rubric
+rather than vague AI commentary.
+
+MVP categories:
+
+```text
+TRUST        Reviews, certifications/licenses, years in business, team/about
+PRICING      Cost, "how pricing works", free estimate/quote
+PROCESS      What happens after I contact you / submit the form, work steps
+SCOPE        Exact services, geographic area served, who they serve (B2B/consumer)
+LOGISTICS    Hours, turnaround/lead time, emergency/urgent availability
+PAYMENT      Accepted payment methods, financing, deposits, cancellation terms
+RISK         Warranty, refund/satisfaction guarantee, insurance/bonded
+CONVERSION   Clear next step, obvious contact options (phone/form/email)
+OBJECTIONS   Common buyer doubts left unanswered
+```
+
+For each category the model returns a status (`ANSWERED | PARTIAL | MISSING`),
+a priority, and a short note. An overall `clarityScore` (0–10) summarizes the
+page. The preview can show the score plus the top gaps as a paywall hook; the
+full report shows the complete breakdown.
+
+The category list lives in `ai/prompts.ts` as data, not hardcoded prose, so it
+can be tuned without touching generation logic.
+
+**Future extension:**
+
+```text
+- Per-industry rubrics (dental vs HVAC vs agency) selected by businessType.
+- Weighted scoring so high-impact categories move the score more.
+- A/B-tunable category set and weights stored in config or DB.
+- Benchmark a score against similar businesses once enough audits exist.
 ```
 
 ### Output language
@@ -317,6 +385,22 @@ The LLM should return strict JSON matching this shape:
 
 ```json
 {
+  "analyzedScope": {
+    "pagesAnalyzed": ["string"],
+    "note": "string"
+  },
+  "clarityScore": {
+    "overall": 0,
+    "categories": [
+      {
+        "key": "TRUST | PRICING | PROCESS | SCOPE | LOGISTICS | PAYMENT | RISK | CONVERSION | OBJECTIONS",
+        "label": "string",
+        "status": "ANSWERED | PARTIAL | MISSING",
+        "priority": "HIGH | MEDIUM | LOW",
+        "note": "string"
+      }
+    ]
+  },
   "businessSummary": {
     "nameGuess": "string | null",
     "whatTheyDo": "string",
@@ -384,7 +468,11 @@ Your job is to analyze website text and optional business context, then produce 
 Rules:
 - Do not invent business-specific facts.
 - If a fact is not present, mark it as missing or needing confirmation.
-- Separate facts found on the website from suggestions.
+- Separate facts found on the analyzed page(s) from suggestions.
+- Only judge what was provided. Never claim a fact is absent from the whole
+  website — say it is "not clearly answered on the analyzed page(s)".
+- Score the page against the provided clarity categories; do not invent your
+  own categories.
 - Write in clear, practical English.
 - Avoid hype and generic filler.
 - Focus on questions real customers would ask before contacting or buying.
@@ -401,6 +489,12 @@ Business type selected by user:
 
 Website URL:
 {{websiteUrl}}
+
+Scope analyzed (only judge what is listed here):
+{{analyzedScope}}
+
+Clarity categories to score (use exactly these keys):
+{{clarityCategories}}
 
 Optional manual context provided by user:
 {{manualContext}}
@@ -535,7 +629,21 @@ Styling: Tailwind CSS + component library
 Local dev: Docker Compose
 Production: DigitalOcean Docker deployment
 LLM: provider adapter, model configurable through env vars
+     Default MVP provider: Google Gemini (2.x Flash) — free tier for dev,
+     cheap paid tier for production
 ```
+
+The LLM always sits behind an adapter (`ai/report-generator.ts`). Gemini is the
+MVP default because it has a usable free tier and native JSON/structured-output
+mode, but the provider is swappable via env vars.
+
+**Future extension:** add OpenAI / Anthropic / local-model providers behind the
+same adapter; route by env or per-plan. Keep prompt + schema provider-agnostic.
+
+> Privacy note: Gemini's **free** tier may use submitted content to improve
+> Google's models. For production handling paying customers, use the **paid**
+> tier (data not used for training). Free tier is acceptable for local dev and
+> the early pet-project MVP.
 
 ### Architecture diagram
 
@@ -567,6 +675,28 @@ Prisma DB marks audit as PAID
 ---
 
 ## 14. Scraping/extraction strategy
+
+### Extraction method decision
+
+MVP uses **plain HTTP fetch** (undici) + HTML parsing, **not a headless
+browser**.
+
+Reason:
+
+- Most small-business / B2B service sites (WordPress, Wix, Tilda, Squarespace)
+  server-render their content, so static fetch reads them fine.
+- Headless browsers (Playwright / Browserless / Browserbase) and scrape APIs
+  add cost, latency, memory, and Docker complexity.
+
+Trade-off accepted for MVP: JS-only single-page apps and Cloudflare-protected
+sites may return too little text. When that happens, return
+`EXTRACTION_EMPTY` and prompt the user to paste manual context.
+
+**Future extension:** all fetching goes through the `ScrapeProvider` interface
+below, so a `HeadlessBrowserScrapeProvider` (Playwright/Browserless) or a hosted
+scrape API can be added later as a fallback or a paid "deep scan" tier **without
+touching audit logic**. Selection can be per-request (e.g. retry with headless
+when static extraction is empty) or per-plan.
 
 ### MVP extraction
 
@@ -612,9 +742,13 @@ interface ScrapeProvider {
 Then implement:
 
 ```text
-BasicScrapeProvider — default MVP
-FirecrawlScrapeProvider — later paid/advanced mode
+BasicScrapeProvider          — default MVP (plain fetch + HTML extraction)
+HeadlessBrowserScrapeProvider — later, for JS-rendered sites (Playwright/Browserless)
+FirecrawlScrapeProvider      — later paid/advanced mode
 ```
+
+The interface can also grow a `scrapeFewPages()` method (already sketched above)
+so v0.2 internal-page reading reuses the same provider abstraction.
 
 ---
 
@@ -1066,9 +1200,10 @@ STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
 STRIPE_PRICE_ID="price_..." # optional if using predefined price
 
-LLM_PROVIDER="openai_or_other"
-LLM_API_KEY="..."
-LLM_MODEL="..."
+# LLM (provider behind an adapter; Gemini is the MVP default)
+LLM_PROVIDER="gemini"
+LLM_API_KEY="..."            # Google AI Studio key for the gemini provider
+LLM_MODEL="gemini-2.0-flash" # any provider-appropriate model id
 
 RATE_LIMIT_SALT="random-secret"
 FULL_ACCESS_TOKEN_SECRET="random-secret"
@@ -1183,6 +1318,7 @@ Later use analytics tool if needed.
 
 ### Preview
 
+- Preview page shows the overall Clarity Score and top 3 weak categories.
 - Preview page shows business summary.
 - Preview page shows exactly 3 missing questions.
 - Preview page shows exactly 3 FAQ examples.
@@ -1739,7 +1875,9 @@ Example `.env.example`:
 
 ```env
 DATABASE_URL=
-OPENAI_API_KEY=
+LLM_PROVIDER=gemini
+LLM_API_KEY=
+LLM_MODEL=gemini-2.0-flash
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_APP_URL=

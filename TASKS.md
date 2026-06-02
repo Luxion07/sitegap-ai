@@ -35,7 +35,30 @@ Rules:
 
 ---
 
+## Recommended Model Per Phase
+
+Each phase below lists a recommended Claude model.
+
+```text
+Sonnet 4.6  — default workhorse: scaffolding, CRUD, UI, configs, glue code.
+Opus 4.8    — high-stakes / hard-thinking work: security, payments, prompt
+              engineering, gnarly debugging. Worth the extra cost where a bug
+              means a security hole, lost money, or low-quality AI output.
+```
+
+Switch with the `/model` command in the session.
+
+Rule for the AI agent: when the user asks to implement a phase, check the
+recommended model for that phase. If the active session model is lower than
+recommended (e.g. Sonnet while the phase wants Opus), **remind the user to
+switch before starting**. If they choose to proceed anyway, that's fine — just
+flag it once.
+
+---
+
 # Phase 1: Project Scaffold
+
+**Recommended model:** Sonnet 4.6 — boilerplate scaffolding, no tricky logic.
 
 ## Goal
 
@@ -111,6 +134,8 @@ prisma/
 
 # Phase 2: Database Schema
 
+**Recommended model:** Sonnet 4.6 — schema is already specified in SPEC.
+
 ## Goal
 
 Add the initial database models.
@@ -163,6 +188,8 @@ PaymentStatus: FREE, PENDING, PAID, REFUNDED
 
 # Phase 3: Audit Creation API
 
+**Recommended model:** Sonnet 4.6 — standard validation + repository wiring.
+
 ## Goal
 
 Allow users to submit a website URL and optional manual text.
@@ -198,6 +225,9 @@ GET /api/audits/[id]
 ---
 
 # Phase 4: Basic Homepage Scraping
+
+**Recommended model:** Opus 4.8 — SSRF protection is security-critical; a
+mistake here is an exploitable hole.
 
 ## Goal
 
@@ -244,6 +274,9 @@ The scraper should:
 
 # Phase 5: AI Report Generation
 
+**Recommended model:** Opus 4.8 — prompt engineering, strict-JSON handling, and
+the Clarity Scorecard directly determine product quality.
+
 ## Goal
 
 Generate the first structured audit report from extracted website text and optional manual text.
@@ -263,6 +296,7 @@ The AI response should follow the JSON schema defined in SPEC.md.
 The report should include:
 
 ```text
+- clarity score + category breakdown (see SPEC "Clarity Scorecard")
 - business summary
 - detected services/products
 - questions already answered
@@ -270,6 +304,14 @@ The report should include:
 - ready-to-publish FAQ
 - website improvement checklist
 - HTML FAQ block
+```
+
+Notes:
+
+```text
+- The clarity categories live in ai/prompts.ts as data (tunable later).
+- Use scope-honest language: judge only the analyzed page(s), never claim a
+  fact is absent from the whole website.
 ```
 
 ## Acceptance Criteria
@@ -285,6 +327,9 @@ The report should include:
 ---
 
 # Phase 6: Preview and Full Report Pages
+
+**Recommended model:** Sonnet 4.6 — mostly UI; bump to Opus if the
+paid/token gating logic gets tricky.
 
 ## Goal
 
@@ -326,6 +371,9 @@ Export MVP:
 ---
 
 # Phase 7: Stripe Checkout
+
+**Recommended model:** Opus 4.8 — payments + webhook trust + report unlock; a
+bug means lost money or a bypassed paywall.
 
 ## Goal
 
@@ -377,6 +425,9 @@ On successful payment:
 ---
 
 # Phase 8: Internal Admin MVP
+
+**Recommended model:** Sonnet 4.6 — straightforward; the auth is a simple
+env-password + signed cookie pattern.
 
 ## Goal
 
@@ -445,6 +496,8 @@ Admin actions:
 
 # Phase 9: UI Polish
 
+**Recommended model:** Sonnet 4.6 — styling, copy, and responsive tweaks.
+
 ## Goal
 
 Make the MVP feel production-ready enough to show users.
@@ -475,6 +528,8 @@ Improve:
 ---
 
 # Phase 10: Deployment Preparation
+
+**Recommended model:** Sonnet 4.6 — configs, env checklist, deploy notes.
 
 ## Goal
 
