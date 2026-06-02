@@ -1,74 +1,36 @@
-# Website FAQ & Gap Audit
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A small MVP that turns a business website homepage into a FAQ and customer information gap audit.
+## Getting Started
 
-## MVP Summary
-
-User flow:
-
-```text
-Enter website URL
-  -> generate audit report
-  -> show free preview
-  -> pay one-time Stripe fee
-  -> unlock full report
-```
-
-## Documentation
-
-```text
-/docs/SPEC.md
-/docs/ARCHITECTURE.md
-/TASKS.md
-/CLAUDE.md or /AGENTS.md
-```
-
-## Local Development Goal
-
-The final scaffold should support:
+First, run the development server:
 
 ```bash
-docker compose up
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Then open:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```text
-http://localhost:3000
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Environment Variables
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Copy:
+## Learn More
 
-```bash
-cp .env.example .env
-```
+To learn more about Next.js, take a look at the following resources:
 
-Then fill the missing values.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## MVP Tech Stack
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-```text
-Next.js
-TypeScript
-PostgreSQL
-Prisma
-Stripe Checkout
-Docker Compose
-```
+## Deploy on Vercel
 
-## Important MVP Boundaries
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Do not implement in the first version:
-
-```text
-RAG
-vector database
-chat widget
-PDF upload
-multi-page crawling
-subscriptions
-user accounts
-microservices
-```
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
