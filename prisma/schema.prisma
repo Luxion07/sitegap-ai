@@ -6,3 +6,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum AuditStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum BusinessType {
+  LOCAL_SERVICE
+  B2B_SERVICE
+  AGENCY_CONSULTING
+  OTHER_SERVICE
+}
+
+model Audit {
+  id            String       @id @default(cuid())
+  websiteUrl    String
+  businessType  BusinessType
+  manualContext String?
+
+  status        AuditStatus @default(PROCESSING)
+  statusMessage String?
+
+  sourceText  String?
+  reportJson  Json?
+  previewJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
