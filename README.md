@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SiteGap AI
 
-## Getting Started
+SiteGap AI is a technical prototype for analyzing public website content and generating structured FAQ and content-gap audit reports.
 
-First, run the development server:
+Core engineering areas covered in this repository:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js fullstack architecture
+- TypeScript
+- PostgreSQL and Prisma
+- AI-assisted report generation
+- Admin tooling
+- Docker-based local development
+
+This repository does not include production credentials, customer data, or commercial deployment configuration.
+
+---
+
+## Tech Stack
+
+- Next.js App Router
+- TypeScript
+- pnpm
+- Tailwind CSS
+- shadcn/ui
+- PostgreSQL
+- Prisma
+- Docker Compose
+- LLM provider adapter
+
+---
+
+## Project Docs
+
+```text
+/docs/SPEC.md
+/docs/ARCHITECTURE.md
+/TASKS.md
+/AGENTS.md
+/CLAUDE.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Read these before implementation:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. `docs/SPEC.md`
+2. `docs/ARCHITECTURE.md`
+3. `TASKS.md`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Local Development
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cp .env.example .env
+pnpm install
+docker compose up --build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Prisma commands:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm prisma:generate
+pnpm prisma:migrate
+pnpm prisma:studio
+```
 
-## Deploy on Vercel
+App:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Environment Variables
+
+See `.env.example`.
+
+Never commit `.env` or `.env.local`.
+
+---
+
+## Development Rules
+
+- Implement one phase at a time.
+- Keep route handlers thin.
+- Put business logic in `src/modules/*`.
+- Do not commit secrets.
+- Do not add unplanned features without updating `TASKS.md`.

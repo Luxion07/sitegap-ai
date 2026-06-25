@@ -1,27 +1,27 @@
 services:
-    app:
-      build: .
-      ports:
-        - "3000:3000"
-      env_file:
-        - .env
-      depends_on:
-        - postgres
-      volumes:
-        - .:/app
-        - /app/node_modules
-        - /app/.next
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
 
-    postgres:
-      image: postgres:16-alpine
-      ports:
-        - "5432:5432"
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: sitegap
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sitegap
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres_data:

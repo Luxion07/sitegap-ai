@@ -1,0 +1,22 @@
+info:
+  name: Create Audit (invalid)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/audits"
+  auth: none
+  body:
+    mode: json
+    json: |
+      {
+        "websiteUrl": "not-a-url",
+        "businessType": "INVALID_TYPE"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

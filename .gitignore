@@ -42,5 +42,8 @@ next-env.d.ts
 
 # Editor
 .vscode/
+.claude/
+.agents/
+.codex/
 
 /src/generated/prisma
