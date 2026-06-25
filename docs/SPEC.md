@@ -1,89 +1,85 @@
-# SPEC.md — Website FAQ & Gap Audit
+# SPEC.md — Website Content Audit Tool
 
-**Status:** Draft v0.1  
-**Date:** 2026-06-02  
-**Owner:** Alex Kozhukhar  
-**Product stage:** MVP  
-**Primary goal:** build a small paid product that turns a business website/manual text into a useful FAQ + gap audit report.
+**Status:** Draft v0.2-clean
+**Owner:** A
+**Project stage:** Technical prototype
+**Primary goal:** build a small fullstack prototype that turns a public website URL and optional manual text into a structured FAQ + content-gap audit report.
 
 ---
 
-## 1. Product summary
+## 1. Project Summary
 
-### Working product name
+### Working project name
 
 Working names only, not final:
 
 - SiteGap AI
-- FAQGap
-- Site2FAQ
-- FAQ Audit AI
-- ClarityAudit
+- Website Content Audit Tool
+- FAQ Gap Analyzer
+- Content Clarity Audit
 
 ### One-liner
 
-> Paste a business website URL and get an AI-generated FAQ, missing-information audit, and ready-to-publish website FAQ block.
+> Paste a public website URL and get an AI-generated FAQ, content clarity audit, and ready-to-use FAQ block.
 
-### Longer positioning
+### Longer description
 
-This product helps small service businesses and B2B service companies understand what customer questions their website does not answer clearly. The product analyzes the homepage and optional manual context, then generates:
+This technical prototype analyzes a public website homepage and optional manual context, then generates:
 
-1. A business summary.
+1. A business/content summary.
 2. Detected services/offers.
-3. Questions already answered by the website.
-4. Important customer questions missing from the website.
-5. A ready-to-publish FAQ section.
+3. Questions already answered by the analyzed page.
+4. Important user/customer questions not clearly answered by the analyzed page.
+5. A ready-to-use FAQ section.
 6. A website improvement checklist.
 7. A copyable HTML FAQ block.
 
-The first version is **not** a chatbot, not RAG, not a knowledge base, and not a website widget. It is a simple one-time report product.
+The first version is **not** a chatbot, not RAG, not a knowledge base, and not a website widget. It is a simple report-generation web application.
 
 ---
 
-## 2. Finalized MVP decisions
+## 2. MVP Decisions
 
-| Area | Decision |
-|---|---|
-| Product language | English first, Russian later |
-| Target niche | Local service businesses + B2B service companies |
-| Initial input | Website homepage URL + optional manual text |
-| Later input | Crawl 3–5 internal pages, PDF upload, Firecrawl adapter |
-| Email capture | No email before generation; Stripe collects email during payment |
-| Report generation | Generate full report before payment; show only preview until paid |
-| Pricing | $19 one-time payment for full report |
-| Auth | No login in MVP |
-| Export | Copy to clipboard, Markdown download, HTML FAQ block copy/download |
-| PDF export | Not in MVP |
-| Stack | Next.js fullstack + TypeScript |
-| API style | Next.js App Router Route Handlers |
-| Database | PostgreSQL + Prisma |
-| Payments | Stripe Checkout + Stripe webhook |
-| Development | Docker Compose locally |
-| Deployment | DigitalOcean preferred; Docker-based deployment |
-| UI quality | Production-looking, not ugly prototype |
+| Area              | Decision                                                           |
+| ----------------- | ------------------------------------------------------------------ |
+| Output language   | English first, Russian later                                       |
+| Target content    | Local service websites + B2B service websites                      |
+| Initial input     | Website homepage URL + optional manual text                        |
+| Later input       | Crawl 3–5 internal pages, PDF upload, optional scrape provider     |
+| Auth              | No public user login in prototype                                  |
+| Export            | Copy to clipboard, Markdown download, HTML FAQ block copy/download |
+| PDF export        | Not in prototype                                                   |
+| Stack             | Next.js fullstack + TypeScript                                     |
+| Package manager   | pnpm                                                              |
+| UI                | Tailwind CSS + shadcn/ui                                           |
+| API style         | Next.js App Router Route Handlers                                  |
+| Database          | PostgreSQL + Prisma                                                |
+| Development       | Docker Compose locally                                             |
+| Deployment        | Docker-compatible deployment                                       |
+| UI quality        | Production-looking, not a throwaway demo                           |
 
 ---
 
-## 3. Problem statement
+## 3. Problem Statement
 
-Many small business websites fail to answer basic buyer questions. Examples:
+Many websites fail to answer basic visitor questions clearly. Examples:
 
-- What does this service cost?
-- Is there a warranty?
-- How long does the work take?
-- What happens after I submit the form?
-- What areas do you serve?
-- Do you work with businesses or individuals?
-- Do you offer emergency service?
-- What payment methods do you accept?
+- What does this service include?
+- Is there a warranty or guarantee?
+- How long does the process take?
+- What happens after someone submits the form?
+- What areas are served?
+- Who is the service for?
+- What payment or scheduling options exist?
+- What is the next step?
 
-The business owner often does not see these gaps because they already know their own business. The product gives them an external AI-powered audit and a ready-to-use FAQ section.
+The tool helps identify clarity gaps in the analyzed page and generates a practical FAQ section that can be reviewed before publishing.
 
 ---
 
-## 4. Target users
+## 4. Target Website Types
 
-### Primary segment A — Local service businesses
+### Primary segment A — Local service websites
 
 Examples:
 
@@ -97,7 +93,7 @@ Examples:
 - Legal/accounting offices
 - Local agencies
 
-### Primary segment B — B2B service companies
+### Primary segment B — B2B service websites
 
 Examples:
 
@@ -110,63 +106,57 @@ Examples:
 
 ### Not the initial focus
 
-- Big enterprise teams
+- Big enterprise portals
 - Full e-commerce catalogs
 - SaaS documentation portals
-- Companies needing live chat/RAG/widget immediately
-- Sites requiring authenticated crawling
-- LinkedIn/social scraping
+- Authenticated crawling
+- Social scraping
+- Chat/RAG/widget use cases
 
 ---
 
-## 5. MVP value proposition
+## 5. Prototype Value
 
-### For the user
+The prototype does not focus on “AI,” “RAG,” “embeddings,” or “scraping” as product claims.
 
-> “In a few minutes, see what important customer questions your website does not answer, and get a ready-to-publish FAQ section to fix it.”
+It focuses on:
 
-### What the product sells
-
-The product does not sell “AI,” “RAG,” “embeddings,” or “scraping.”
-
-It sells:
-
-- Better website clarity.
-- Fewer unanswered customer doubts.
-- A practical FAQ section.
-- A list of conversion blockers.
-- Ready-to-use copy.
+- Website clarity.
+- Missing visitor questions.
+- Practical FAQ generation.
+- Content improvement suggestions.
+- Ready-to-use copy blocks.
 
 ---
 
-## 6. MVP scope
+## 6. MVP Scope
 
 ### In scope
 
 - Landing page.
 - Website URL input.
-- Optional manual business context textarea.
+- Optional manual business/context textarea.
 - Business type selection.
 - Homepage fetch.
 - HTML-to-readable-text extraction.
 - AI report generation.
-- Preview report page.
-- Stripe Checkout one-time payment.
-- Stripe webhook fulfillment.
-- Full report unlock after payment.
+- Report page.
 - Copy report sections.
 - Download Markdown report.
 - Copy/download HTML FAQ block.
+- Internal admin page.
 - Basic rate limiting.
 - SSRF-safe URL validation.
 - Docker local development.
-- Production-ready visual UI.
+- Production-looking UI.
 
 ### Out of scope for MVP
 
-- Login/accounts.
+- Public user accounts.
+- Payments.
+- Stripe.
 - Subscriptions.
-- Dashboard/history.
+- Public dashboard/history.
 - RAG/vector database.
 - AI chat.
 - Website chat widget.
@@ -176,15 +166,12 @@ It sells:
 - CRM integrations.
 - n8n workflows.
 - Team accounts.
-- Admin dashboard.
 - Full analytics suite.
 - PDF export.
 
 ---
 
-## 7. User flow
-
-### 7.1 Free preview flow
+## 7. User Flow
 
 ```text
 User opens landing page
@@ -195,81 +182,43 @@ Optionally adds manual context
   ↓
 Selects business type
   ↓
-Clicks “Generate free preview”
+Clicks "Generate audit"
   ↓
 App validates URL/input
   ↓
 App fetches homepage text
   ↓
-App generates full report internally
+App generates report
   ↓
-App stores full report in DB as unpaid
+App stores report in DB
   ↓
-User sees preview only
+User sees generated report
   ↓
-User clicks “Unlock full report — $19”
+User can copy sections or download Markdown/HTML FAQ block
 ```
 
-### 7.2 Paid unlock flow
+### Report access in prototype
 
-```text
-User clicks Unlock Full Report
-  ↓
-App creates Stripe Checkout Session
-  ↓
-User pays on Stripe-hosted checkout
-  ↓
-Stripe sends checkout.session.completed webhook
-  ↓
-App marks audit as paid
-  ↓
-User returns to success/full report page
-  ↓
-App shows full report if audit is paid and full-access token is valid
-```
+The prototype does not require payment or public authentication. Reports are accessible by unguessable audit ID.
 
-### 7.3 Full report access
-
-The full report must not be unlocked simply because the user visits a success URL.
-
-Unlock condition:
-
-```text
-audit.status === "READY"
-AND audit.paymentStatus === "PAID"
-AND fullAccessToken is valid
-```
+Later, access control can be added if the project evolves into a user-facing application.
 
 ---
 
-## 8. Report structure
+## 8. Report Structure
 
-### 8.1 Free preview content
+### Full report content
 
-The free preview should show enough value to motivate payment, but not the complete asset.
+The generated report should include:
 
-Show:
-
-1. Overall Clarity Score (0–10) with the top 3 weakest categories.
-2. Business summary.
-3. Detected business type/offers.
-4. 3 missing customer questions.
-5. 3 FAQ examples.
-6. Blurred/locked sections preview.
-7. CTA: “Unlock full report — $19”.
-
-### 8.2 Full report content
-
-Full report should include:
-
-1. Clarity Score with the full category breakdown (all 9 categories).
-2. Business summary.
+1. Clarity Score with the full category breakdown.
+2. Business/content summary.
 3. Detected services/products/offers.
-4. Likely customer intent.
-5. Questions already answered on the analyzed page(s).
-6. Missing customer questions.
+4. Likely visitor intent.
+5. Questions already answered on the analyzed page.
+6. Missing visitor/customer questions.
 7. Priority gaps.
-8. Ready-to-publish FAQ.
+8. Ready-to-use FAQ.
 9. Website improvement checklist.
 10. Suggested copy blocks.
 11. HTML FAQ block.
@@ -277,29 +226,27 @@ Full report should include:
 
 ---
 
-## 9. AI output rules
+## 9. AI Output Rules
 
 ### Critical rule: do not invent business facts
 
 The report must separate:
 
-- Facts found on the analyzed page(s) / manual text.
-- Reasonable customer questions not clearly answered on the analyzed page(s).
-- Suggested copy that requires business confirmation.
+- Facts found on the analyzed page/manual text.
+- Reasonable visitor questions not clearly answered on the analyzed page.
+- Suggested copy that requires confirmation.
 
-For example, if the website does not mention warranty, the report must not say:
+If the analyzed text does not mention warranty, do not write:
 
 > “The company offers a 12-month warranty.”
 
-It should say:
+Write:
 
-> “Warranty information is not clearly stated. Add a warranty FAQ if applicable.”
+> “Warranty information is not clearly stated on the analyzed page. Add a warranty FAQ if applicable.”
 
 ### Scope honesty rule
 
-In MVP we analyze only the homepage (plus optional manual context). The report
-must therefore never claim a fact is **absent from the whole website** — only
-that it is **not clearly answered on the page(s) we analyzed**.
+In MVP, the tool analyzes only the homepage plus optional manual context. The report must never claim a fact is absent from the whole website.
 
 Use phrasing like:
 
@@ -315,14 +262,6 @@ Avoid phrasing like:
 "This is missing from your site"
 ```
 
-Rationale: a dedicated `/faq`, `/pricing`, or `/about` page may already answer
-the question. Over-claiming creates false positives that destroy user trust.
-
-**Future extension:** once multi-page reading (v0.2) is added, the analyzed
-scope grows and this language can be relaxed accordingly. The `analyzedScope`
-field below records exactly what was read, so the wording can adapt
-automatically without changing the prompt contract.
-
 ### Confidence labels
 
 Each answer should have one of these labels:
@@ -333,53 +272,37 @@ INFERRED_FROM_CONTEXT
 MISSING_NEEDS_CONFIRMATION
 ```
 
-### Gap evaluation criteria (Clarity Scorecard)
+### Clarity Scorecard Categories
 
-To keep the report concrete and non-generic, the model does not freely invent
-"problems." It evaluates the analyzed text against a fixed checklist of buyer
-clarity categories. This is the core of the product's value: a repeatable rubric
-rather than vague AI commentary.
-
-MVP categories:
+The model evaluates the analyzed text against this fixed checklist:
 
 ```text
 TRUST        Reviews, certifications/licenses, years in business, team/about
 PRICING      Cost, "how pricing works", free estimate/quote
-PROCESS      What happens after I contact you / submit the form, work steps
-SCOPE        Exact services, geographic area served, who they serve (B2B/consumer)
+PROCESS      What happens after contact/form submission, work steps
+SCOPE        Exact services, geographic area served, who they serve
 LOGISTICS    Hours, turnaround/lead time, emergency/urgent availability
-PAYMENT      Accepted payment methods, financing, deposits, cancellation terms
+PAYMENT      Payment methods, financing, deposits, cancellation terms
 RISK         Warranty, refund/satisfaction guarantee, insurance/bonded
-CONVERSION   Clear next step, obvious contact options (phone/form/email)
-OBJECTIONS   Common buyer doubts left unanswered
+CONVERSION   Clear next step, obvious contact options
+OBJECTIONS   Common visitor doubts left unanswered
 ```
 
-For each category the model returns a status (`ANSWERED | PARTIAL | MISSING`),
-a priority, and a short note. An overall `clarityScore` (0–10) summarizes the
-page. The preview can show the score plus the top gaps as a paywall hook; the
-full report shows the complete breakdown.
-
-The category list lives in `ai/prompts.ts` as data, not hardcoded prose, so it
-can be tuned without touching generation logic.
-
-**Future extension:**
+For each category the model returns:
 
 ```text
-- Per-industry rubrics (dental vs HVAC vs agency) selected by businessType.
-- Weighted scoring so high-impact categories move the score more.
-- A/B-tunable category set and weights stored in config or DB.
-- Benchmark a score against similar businesses once enough audits exist.
+status: ANSWERED | PARTIAL | MISSING
+priority: HIGH | MEDIUM | LOW
+note: short explanation
 ```
 
 ### Output language
 
 MVP output language: English.
 
-Later: Russian localization.
-
 ---
 
-## 10. AI report JSON schema
+## 10. AI Report JSON Schema
 
 The LLM should return strict JSON matching this shape:
 
@@ -456,33 +379,33 @@ The LLM should return strict JSON matching this shape:
 
 ---
 
-## 11. Prompt template
+## 11. Prompt Template
 
 ### System prompt
 
 ```text
-You are an expert website conversion auditor and FAQ copywriter for small service businesses and B2B service companies.
+You are an expert website content clarity auditor and FAQ copywriter for service websites.
 
-Your job is to analyze website text and optional business context, then produce a practical FAQ and information-gap audit.
+Your job is to analyze website text and optional context, then produce a practical FAQ and information-gap audit.
 
 Rules:
 - Do not invent business-specific facts.
 - If a fact is not present, mark it as missing or needing confirmation.
 - Separate facts found on the analyzed page(s) from suggestions.
-- Only judge what was provided. Never claim a fact is absent from the whole
-  website — say it is "not clearly answered on the analyzed page(s)".
-- Score the page against the provided clarity categories; do not invent your
-  own categories.
+- Only judge what was provided. Never claim a fact is absent from the whole website.
+- Say it is "not clearly answered on the analyzed page(s)".
+- Score the page against the provided clarity categories.
+- Do not invent your own categories.
 - Write in clear, practical English.
 - Avoid hype and generic filler.
-- Focus on questions real customers would ask before contacting or buying.
+- Focus on questions real visitors would ask before contacting or buying.
 - Return strict valid JSON only.
 ```
 
 ### User prompt
 
 ```text
-Analyze the following business website content.
+Analyze the following website content.
 
 Business type selected by user:
 {{businessType}}
@@ -490,19 +413,19 @@ Business type selected by user:
 Website URL:
 {{websiteUrl}}
 
-Scope analyzed (only judge what is listed here):
+Scope analyzed:
 {{analyzedScope}}
 
-Clarity categories to score (use exactly these keys):
+Clarity categories to score:
 {{clarityCategories}}
 
-Optional manual context provided by user:
+Optional manual context:
 {{manualContext}}
 
 Extracted website text:
 {{extractedText}}
 
-Create a Website FAQ & Gap Audit report.
+Create a Website FAQ & Content Gap Audit report.
 
 Return JSON matching exactly this schema:
 {{schema}}
@@ -510,11 +433,11 @@ Return JSON matching exactly this schema:
 
 ---
 
-## 12. Pages and UI requirements
+## 12. Pages and UI Requirements
 
 ### 12.1 `/` — Landing page
 
-Purpose: explain the product and collect audit input.
+Purpose: explain the tool and collect audit input.
 
 Sections:
 
@@ -523,23 +446,22 @@ Sections:
 3. Optional manual context textarea.
 4. Business type selector.
 5. “What you’ll get” section.
-6. Example preview section.
-7. Pricing card: “Full report — $19”.
-8. FAQ about the tool.
-9. Footer with Terms/Privacy links.
+6. Example report preview.
+7. FAQ about the tool.
+8. Footer.
 
 Hero copy draft:
 
 ```text
-Find the customer questions your website fails to answer.
+Find the visitor questions your website does not clearly answer.
 
-Paste your business website and get an AI-generated FAQ, missing-information audit, and ready-to-publish FAQ block.
+Paste a website URL and get an AI-generated FAQ, content-gap audit, and ready-to-use FAQ block.
 ```
 
 Primary CTA:
 
 ```text
-Generate free preview
+Generate audit
 ```
 
 Form fields:
@@ -559,54 +481,38 @@ Agency / consulting
 Other service business
 ```
 
-### 12.2 `/audit/[id]` — Preview/full report page
+### 12.2 `/audit/[id]` — Report page
 
 States:
 
 - Processing.
 - Failed.
-- Ready unpaid preview.
-- Ready paid full report.
+- Ready.
 
-Unpaid preview should show:
+Ready report should show:
 
 - Summary card.
-- 3 missing questions.
-- 3 FAQ examples.
-- Locked sections.
-- Stripe CTA.
+- Clarity score.
+- Category breakdown.
+- Missing questions.
+- Ready FAQ.
+- Website improvement checklist.
+- HTML FAQ block.
+- Copy buttons.
+- Markdown download button.
 
-Paid full report should show:
+### 12.3 `/legal/privacy`
 
-- Full report sections.
-- Copy buttons per section.
-- Download Markdown button.
-- Copy HTML FAQ block button.
-
-### 12.3 `/audit/[id]/success`
-
-Purpose: payment return page.
-
-Behavior:
-
-1. Reads `session_id` from query.
-2. Server verifies session with Stripe or waits for webhook state.
-3. If paid, redirects/shows full report with token.
-4. If webhook is delayed, shows “Confirming payment...” and polls.
-
-### 12.4 `/legal/privacy`
-
-MVP simple privacy page:
+Prototype privacy page:
 
 - What data is processed.
 - Website URL/manual text usage.
-- Payment handled by Stripe.
 - Contact email.
 - Data deletion request contact.
 
-### 12.5 `/legal/terms`
+### 12.4 `/legal/terms`
 
-MVP simple terms page:
+Prototype terms page:
 
 - Report is AI-generated.
 - User must verify before publishing.
@@ -615,122 +521,59 @@ MVP simple terms page:
 
 ---
 
-## 13. Technical architecture
+## 13. Technical Architecture
 
 ### Recommended MVP stack
 
 ```text
 App: Next.js App Router + TypeScript
+Package manager: pnpm
 API: Next.js Route Handlers
 DB: PostgreSQL
 ORM: Prisma
-Payments: Stripe Checkout
-Styling: Tailwind CSS + component library
+Styling: Tailwind CSS + shadcn/ui
 Local dev: Docker Compose
-Production: DigitalOcean Docker deployment
+Production: Docker-compatible deployment
 LLM: provider adapter, model configurable through env vars
-     Default MVP provider: Google Gemini (2.x Flash) — free tier for dev,
-     cheap paid tier for production
+Default MVP provider: Google Gemini through adapter
 ```
 
-The LLM always sits behind an adapter (`ai/report-generator.ts`). Gemini is the
-MVP default because it has a usable free tier and native JSON/structured-output
-mode, but the provider is swappable via env vars.
-
-**Future extension:** add OpenAI / Anthropic / local-model providers behind the
-same adapter; route by env or per-plan. Keep prompt + schema provider-agnostic.
-
-> Privacy note: Gemini's **free** tier may use submitted content to improve
-> Google's models. For production handling paying customers, use the **paid**
-> tier (data not used for training). Free tier is acceptable for local dev and
-> the early pet-project MVP.
-
-### Architecture diagram
-
-```text
-Browser
-  ↓
-Next.js UI
-  ↓
-Next.js Route Handlers
-  ↓
-Audit Service
-  ├── URL Validator
-  ├── Homepage Fetcher
-  ├── HTML Text Extractor
-  ├── LLM Report Generator
-  ├── Preview Builder
-  ├── Markdown/HTML Export Builder
-  └── Prisma DB
-        ↓
-PostgreSQL
-
-Stripe Checkout
-  ↓
-Stripe Webhook
-  ↓
-Prisma DB marks audit as PAID
-```
+The LLM always sits behind an adapter (`modules/ai/report-generator.ts`). The provider should be swappable via environment variables.
 
 ---
 
-## 14. Scraping/extraction strategy
+## 14. Scraping/Extraction Strategy
 
 ### Extraction method decision
 
-MVP uses **plain HTTP fetch** (undici) + HTML parsing, **not a headless
-browser**.
+MVP uses **plain HTTP fetch** + HTML parsing, not a headless browser.
 
 Reason:
 
-- Most small-business / B2B service sites (WordPress, Wix, Tilda, Squarespace)
-  server-render their content, so static fetch reads them fine.
-- Headless browsers (Playwright / Browserless / Browserbase) and scrape APIs
-  add cost, latency, memory, and Docker complexity.
+- Most service websites have server-rendered or readable HTML.
+- Headless browsers and scrape APIs add cost, latency, memory, and Docker complexity.
 
-Trade-off accepted for MVP: JS-only single-page apps and Cloudflare-protected
-sites may return too little text. When that happens, return
-`EXTRACTION_EMPTY` and prompt the user to paste manual context.
-
-**Future extension:** all fetching goes through the `ScrapeProvider` interface
-below, so a `HeadlessBrowserScrapeProvider` (Playwright/Browserless) or a hosted
-scrape API can be added later as a fallback or a paid "deep scan" tier **without
-touching audit logic**. Selection can be per-request (e.g. retry with headless
-when static extraction is empty) or per-plan.
+Trade-off accepted for MVP: JS-only single-page apps and protected sites may return too little text. When that happens, return `EXTRACTION_EMPTY` and prompt the user to paste manual context.
 
 ### MVP extraction
 
-For v0.1:
-
 1. Fetch only the exact homepage URL the user provides.
 2. Follow limited redirects.
-3. Accept only `text/html` content.
+3. Accept only `text/html`.
 4. Extract readable text.
 5. Combine extracted text with optional manual context.
 6. Truncate to model-safe max length.
 
 ### Recommended extraction libraries
 
-Possible implementation:
-
 ```text
-fetch/undici for HTTP
+undici/fetch for HTTP
 cheerio for HTML parsing
-@mozilla/readability + jsdom for readable article-like extraction
+@mozilla/readability + jsdom for readable extraction
 custom fallback: remove script/style/nav/footer and extract text
 ```
 
-### Firecrawl policy
-
-Firecrawl is **not used in MVP v0.1**.
-
-Reason:
-
-- Adds vendor dependency.
-- Adds cost per scrape/crawl.
-- Homepage-only extraction is enough to validate product demand.
-
-Later add a provider interface:
+### Scrape provider interface
 
 ```ts
 interface ScrapeProvider {
@@ -739,24 +582,24 @@ interface ScrapeProvider {
 }
 ```
 
-Then implement:
+MVP provider:
 
 ```text
-BasicScrapeProvider          — default MVP (plain fetch + HTML extraction)
-HeadlessBrowserScrapeProvider — later, for JS-rendered sites (Playwright/Browserless)
-FirecrawlScrapeProvider      — later paid/advanced mode
+BasicScrapeProvider — plain fetch + HTML extraction
 ```
 
-The interface can also grow a `scrapeFewPages()` method (already sketched above)
-so v0.2 internal-page reading reuses the same provider abstraction.
+Future providers:
+
+```text
+HeadlessBrowserScrapeProvider
+FirecrawlScrapeProvider
+```
 
 ---
 
-## 15. Security requirements
+## 15. Security Requirements
 
 ### 15.1 URL validation / SSRF protection
-
-Because users submit URLs, implement SSRF protection from the start.
 
 Rules:
 
@@ -770,7 +613,7 @@ Rules:
 - Limit redirect count.
 - Set request timeout.
 - Limit response size.
-- Require `text/html` for website fetch.
+- Require `text/html`.
 - Do not send cookies or credentials.
 
 Blocked examples:
@@ -802,21 +645,9 @@ Implementation options:
 - Simple DB table `RateLimitEvent`.
 - Later: Redis-based limiter.
 
-### 15.3 Full report access protection
-
-No login in MVP, so access is token-based.
-
-Rules:
-
-- Audit ID is public-ish but unguessable.
-- Full report requires `fullAccessToken`.
-- Token is included only in Stripe success URL and paid links.
-- Preview page does not expose full JSON in client HTML.
-- Full report API redacts full report if token invalid or unpaid.
-
 ---
 
-## 16. Database schema — Prisma draft
+## 16. Database Schema — Prisma Draft
 
 ```prisma
 generator client {
@@ -834,13 +665,6 @@ enum AuditStatus {
   FAILED
 }
 
-enum PaymentStatus {
-  UNPAID
-  CHECKOUT_CREATED
-  PAID
-  REFUNDED
-}
-
 enum BusinessType {
   LOCAL_SERVICE
   B2B_SERVICE
@@ -849,43 +673,32 @@ enum BusinessType {
 }
 
 model Audit {
-  id                      String        @id @default(cuid())
-  fullAccessToken          String        @unique
+  id                 String        @id @default(cuid())
 
-  websiteUrl               String
-  normalizedDomain         String?
-  businessType             BusinessType
-  manualContext            String?
+  websiteUrl          String
+  normalizedDomain    String?
+  businessType        BusinessType
+  manualContext       String?
 
-  status                   AuditStatus   @default(PROCESSING)
-  statusMessage            String?
+  status              AuditStatus   @default(PROCESSING)
+  statusMessage       String?
 
-  sourceText               String?
-  sourceTextSha256          String?
-  sourceTextCharCount       Int?
+  sourceText          String?
+  sourceTextSha256    String?
+  sourceTextCharCount Int?
 
-  reportJson               Json?
-  previewJson              Json?
-  markdownReport           String?
-  htmlFaqBlock             String?
+  reportJson          Json?
+  previewJson         Json?
+  markdownReport      String?
+  htmlFaqBlock        String?
 
-  paymentStatus            PaymentStatus @default(UNPAID)
-  priceCents               Int           @default(1900)
-  currency                 String        @default("usd")
+  errorCode           String?
+  errorMessage        String?
 
-  stripeCheckoutSessionId  String?       @unique
-  stripePaymentIntentId    String?
-  stripeCustomerEmail      String?
-
-  errorCode                String?
-  errorMessage             String?
-
-  createdAt                DateTime      @default(now())
-  updatedAt                DateTime      @updatedAt
-  paidAt                   DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   @@index([createdAt])
-  @@index([paymentStatus])
   @@index([normalizedDomain])
 }
 
@@ -901,7 +714,7 @@ model RateLimitEvent {
 
 ---
 
-## 17. API routes
+## 17. API Routes
 
 ### 17.1 `POST /api/audits`
 
@@ -938,7 +751,7 @@ Response success:
 {
   "auditId": "clx...",
   "status": "READY",
-  "previewUrl": "/audit/clx..."
+  "reportUrl": "/audit/clx..."
 }
 ```
 
@@ -947,139 +760,155 @@ Response failure:
 ```json
 {
   "error": "FETCH_FAILED",
-  "message": "We could not read this website. Try pasting business text manually."
+  "message": "We could not read this website. Try pasting website text manually."
 }
 ```
 
 ### 17.2 `GET /api/audits/[id]`
 
-Returns preview or full report depending on payment/token.
+Returns generated report.
 
-Query:
+### 17.3 `GET /api/audits/[id]/download.md`
 
-```text
-?token=FULL_ACCESS_TOKEN
-```
+Returns Markdown report.
 
-Behavior:
+### 17.4 `GET /api/audits/[id]/faq.html`
 
-- If unpaid or invalid token: return preview only.
-- If paid and valid token: return full report.
+Returns HTML FAQ block.
 
-### 17.3 `POST /api/audits/[id]/checkout`
-
-Creates Stripe Checkout Session.
-
-Request:
-
-```json
-{
-  "returnToken": "FULL_ACCESS_TOKEN"
-}
-```
-
-Behavior:
-
-1. Load audit.
-2. Ensure report is ready.
-3. Ensure not already paid.
-4. Create Stripe Checkout Session with:
-   - mode: `payment`
-   - line item: `$19 Website FAQ & Gap Audit full report`
-   - metadata: `auditId`
-   - success URL: `/audit/[id]/success?session_id={CHECKOUT_SESSION_ID}&token=...`
-   - cancel URL: `/audit/[id]`
-5. Save checkout session ID.
-6. Return checkout URL.
-
-### 17.4 `POST /api/stripe/webhook`
-
-Handles Stripe events.
-
-Required event:
-
-```text
-checkout.session.completed
-```
-
-Behavior:
-
-1. Verify Stripe webhook signature using raw request body.
-2. Read `auditId` from session metadata.
-3. Confirm payment status.
-4. Mark audit as `PAID`.
-5. Store customer email if available.
-6. Store payment intent ID if available.
-
-### 17.5 `GET /api/audits/[id]/download.md`
-
-Returns Markdown report if paid and token valid.
-
-### 17.6 `GET /api/audits/[id]/faq.html`
-
-Returns HTML FAQ block if paid and token valid.
-
-### 17.7 `GET /api/health`
+### 17.5 `GET /api/health`
 
 Returns basic app status.
 
 ---
 
-## 18. Stripe implementation details
+## 18. Internal Admin MVP
 
-### Product
+The prototype includes a minimal internal admin area for the project owner.
+
+This is not a public user dashboard. It exists only to monitor generated audits, debug failures, and manually recover broken generation flows.
+
+### Route
 
 ```text
-Name: Website FAQ & Gap Audit — Full Report
-Price: $19
-Type: One-time payment
-Currency: USD
+/admin
 ```
 
-### Checkout metadata
+### Access protection
 
-Include at minimum:
+The admin area can be protected with a simple environment-based password.
 
-```json
-{
-  "auditId": "clx..."
-}
+```env
+ADMIN_PASSWORD=change-me
+ADMIN_SESSION_SECRET=change-me
 ```
 
-### Important payment rules
+Recommended behavior:
 
-- The webhook is the trusted fulfillment signal.
-- The success page alone does not unlock the report.
-- Store Stripe IDs for support/debugging.
-- Use test mode in development.
-- Use live keys only in production.
+```text
+1. User opens /admin.
+2. If no valid admin session exists, show a password form.
+3. If password matches ADMIN_PASSWORD, create a signed HTTP-only session cookie.
+4. Admin pages are accessible only with a valid session cookie.
+```
+
+Later, it can be replaced with proper authentication.
+
+### Admin features
+
+The `/admin` page should show a table of all audit reports.
+
+Required columns:
+
+```text
+- Audit ID
+- Website URL
+- Business type
+- Audit status
+- Created date
+- Updated date
+```
+
+Required filters:
+
+```text
+- All
+- READY
+- FAILED
+- PROCESSING
+```
+
+Each audit should have a detail page:
+
+```text
+/admin/audits/[id]
+```
+
+The detail page should show:
+
+```text
+- Website URL
+- Business type
+- Status
+- Extracted text length
+- Preview report JSON
+- Full report JSON
+- Error message, if failed
+- Created date
+- Updated date
+```
+
+Required admin actions:
+
+```text
+- Open audit report
+- Delete audit
+- Manually mark audit as FAILED
+```
+
+Nice-to-have admin actions after MVP:
+
+```text
+- Retry generation
+- Regenerate report
+- Export audit as Markdown
+```
+
+### Admin security notes
+
+Admin routes must never expose secrets to the browser.
+
+Do not show:
+
+```text
+- LLM API key
+- Database URL
+- Admin password
+- Admin session secret
+```
 
 ---
 
-## 19. UI components
+## 19. UI Components
 
-### Core components
+Core components:
 
 ```text
 AuditForm
 BusinessTypeSelect
 ManualContextTextarea
 LoadingAuditState
-PreviewReport
-LockedSectionCard
-PricingUnlockCard
-FullReport
+ReportPage
 ReportSection
 CopyButton
 MarkdownDownloadButton
 HtmlFaqBlockCard
 ErrorState
-PaymentSuccessState
+AdminAuditTable
+AdminAuditDetail
 ```
 
-### UI quality bar
-
-The UI should feel like a real product, not a dev demo:
+UI quality bar:
 
 - Clean layout.
 - Good spacing.
@@ -1088,52 +917,53 @@ The UI should feel like a real product, not a dev demo:
 - Skeleton/loading states.
 - Helpful errors.
 - Report cards with good typography.
-- Locked sections visually obvious.
-- No raw JSON displayed to end users.
+- No raw JSON displayed to public users.
 
 ---
 
-## 20. Markdown export format
-
-The Markdown report should look like this:
+## 20. Markdown Export Format
 
 ```markdown
-# Website FAQ & Gap Audit
+# Website FAQ & Content Gap Audit
 
-Website: https://example.com  
-Business type: Local service business  
+Website: https://example.com
+Business type: Local service business
 Generated: 2026-06-02
 
 ## 1. Business Summary
+
 ...
 
 ## 2. Detected Services / Offers
+
 ...
 
 ## 3. Questions Already Answered
+
 ...
 
-## 4. Missing Customer Questions
+## 4. Missing Visitor Questions
+
 ...
 
-## 5. Ready-to-Publish FAQ
+## 5. Ready-to-Use FAQ
+
 ...
 
 ## 6. Website Improvement Checklist
+
 ...
 
 ## 7. HTML FAQ Block
 
 ```html
-<section class="faq-section">
-...
-</section>
+<section class="faq-section">...</section>
 ```
 ```
 
 ---
 
-## 21. HTML FAQ block requirements
+## 21. HTML FAQ Block Requirements
 
 Generated HTML should be simple and portable:
 
@@ -1153,23 +983,21 @@ Rules:
 - No external CSS.
 - No tracking.
 - Semantic HTML.
-- Business-specific unsupported facts must be avoided.
+- Unsupported facts must be avoided.
 
 ---
 
-## 22. Error handling
+## 22. Error Handling
 
 ### User-facing errors
 
-| Error | Message |
-|---|---|
-| Invalid URL | “Please enter a valid website URL.” |
-| Blocked URL | “This URL cannot be analyzed for security reasons.” |
-| Fetch failed | “We could not read this website. You can paste business text manually instead.” |
-| Not enough text | “We could not find enough readable text. Try adding manual context.” |
-| AI failed | “Report generation failed. Please try again.” |
-| Payment pending | “Payment is being confirmed. This usually completes shortly.” |
-| Payment failed/cancelled | “Payment was not completed. Your preview is still available.” |
+| Error           | Message                                                                         |
+| --------------- | ------------------------------------------------------------------------------- |
+| Invalid URL     | “Please enter a valid website URL.”                                             |
+| Blocked URL     | “This URL cannot be analyzed for security reasons.”                             |
+| Fetch failed    | “We could not read this website. You can paste website text manually instead.”  |
+| Not enough text | “We could not find enough readable text. Try adding manual context.”            |
+| AI failed       | “Report generation failed. Please try again.”                                   |
 
 ### Internal error codes
 
@@ -1182,36 +1010,29 @@ FETCH_NON_HTML
 EXTRACTION_EMPTY
 LLM_FAILED
 LLM_INVALID_JSON
-STRIPE_SESSION_FAILED
-STRIPE_WEBHOOK_INVALID
-PAYMENT_NOT_CONFIRMED
 ```
 
 ---
 
-## 23. Environment variables
+## 23. Environment Variables
 
 ```bash
 DATABASE_URL="postgresql://..."
 APP_URL="http://localhost:3000"
 NODE_ENV="development"
 
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-STRIPE_PRICE_ID="price_..." # optional if using predefined price
-
-# LLM (provider behind an adapter; Gemini is the MVP default)
 LLM_PROVIDER="gemini"
-LLM_API_KEY="..."            # Google AI Studio key for the gemini provider
-LLM_MODEL="gemini-2.0-flash" # any provider-appropriate model id
+LLM_API_KEY="..."
+LLM_MODEL="gemini-2.0-flash"
 
 RATE_LIMIT_SALT="random-secret"
-FULL_ACCESS_TOKEN_SECRET="random-secret"
+ADMIN_PASSWORD="change-me"
+ADMIN_SESSION_SECRET="random-secret"
 ```
 
 ---
 
-## 24. Local development with Docker
+## 24. Local Development with Docker
 
 ### Services
 
@@ -1225,8 +1046,8 @@ postgres: local PostgreSQL database
 ```bash
 cp .env.example .env
 docker compose up --build
-npm run prisma:migrate
-npm run dev
+pnpm prisma:migrate
+pnpm dev
 ```
 
 ### Suggested scripts
@@ -1248,63 +1069,23 @@ npm run dev
 
 ---
 
-## 25. Deployment plan
+## 25. Deployment Notes
 
-### Preferred production path
+Deployment is out of scope for the first scaffold, but the app should remain Docker-compatible.
 
-Use DigitalOcean because an account already exists.
-
-Recommended deployment:
+Possible future deployment options:
 
 ```text
-DigitalOcean App Platform or Docker-based app deployment
-  +
-Managed PostgreSQL
-  +
-Stripe live mode
-  +
-Production environment variables
+DigitalOcean App Platform
+DigitalOcean Droplet + Docker Compose
+Any Docker-compatible PaaS
 ```
 
-### Cheaper beta alternative
-
-```text
-Single DigitalOcean Droplet
-  +
-Docker Compose
-  +
-PostgreSQL container or managed DB
-  +
-Caddy/Traefik/Nginx reverse proxy
-```
-
-For a paid product, managed PostgreSQL is safer than keeping the only database inside the same Docker Compose stack without backups.
+Production deployment should use managed PostgreSQL or a backed-up database.
 
 ---
 
-## 26. Analytics events
-
-MVP can start with simple DB or console logging.
-
-Events to track:
-
-```text
-audit_started
-audit_ready
-audit_failed
-preview_viewed
-checkout_started
-payment_completed
-full_report_viewed
-markdown_downloaded
-html_copied
-```
-
-Later use analytics tool if needed.
-
----
-
-## 27. Acceptance criteria
+## 26. Acceptance Criteria
 
 ### Core generation
 
@@ -1316,49 +1097,48 @@ Later use analytics tool if needed.
 - App handles sites with not enough text.
 - AI does not invent unsupported business facts.
 
-### Preview
+### Report
 
-- Preview page shows the overall Clarity Score and top 3 weak categories.
-- Preview page shows business summary.
-- Preview page shows exactly 3 missing questions.
-- Preview page shows exactly 3 FAQ examples.
-- Locked full sections are visible but not readable.
-- Preview includes clear $19 unlock CTA.
+- Report page shows Clarity Score and category breakdown.
+- Report page shows business summary.
+- Report page shows missing questions.
+- Report page shows FAQ examples.
+- User can copy sections.
+- User can download Markdown.
+- User can copy HTML FAQ block.
 
-### Payment
+### Admin
 
-- Stripe Checkout opens from preview page.
-- Test payment marks audit as paid through webhook.
-- Success page shows full report after payment confirmation.
-- Unpaid users cannot access full report API.
+- Admin can log in with environment-based password.
+- Admin can see audits.
+- Admin can open audit detail.
+- Admin can delete audit.
+- Admin can see errors.
 
-### Export
-
-- Paid user can copy FAQ.
-- Paid user can download Markdown.
-- Paid user can copy HTML FAQ block.
-- Unpaid user cannot access Markdown/HTML export routes.
-
-### Deployment
+### Development
 
 - App runs locally with Docker Compose.
-- App can be deployed as Dockerized service.
-- Production env vars are separated from dev env vars.
-- Webhook endpoint works in production.
+- App uses pnpm.
+- App uses PostgreSQL and Prisma.
+- Environment variables are separated from committed files.
 
 ---
 
-## 28. Implementation checklist
+## 27. Implementation Checklist
 
 ### Phase 1 — Project setup
 
 - [ ] Create Next.js + TypeScript project.
-- [ ] Add Tailwind/component library.
+- [ ] Use pnpm.
+- [ ] Add Tailwind + shadcn/ui.
 - [ ] Add Prisma.
 - [ ] Add PostgreSQL Docker Compose.
 - [ ] Create Prisma schema.
 - [ ] Add `.env.example`.
 - [ ] Add basic health route.
+- [ ] Add placeholder landing page.
+- [ ] Add placeholder admin page.
+- [ ] Add recommended module structure.
 
 ### Phase 2 — Landing and audit form
 
@@ -1391,22 +1171,19 @@ Later use analytics tool if needed.
 
 ### Phase 5 — Report UI
 
-- [ ] Build preview report page.
-- [ ] Build locked sections.
-- [ ] Build full report page.
+- [ ] Build report page.
 - [ ] Add copy buttons.
 - [ ] Add Markdown download route.
 - [ ] Add HTML FAQ block copy/download.
 
-### Phase 6 — Stripe
+### Phase 6 — Internal admin
 
-- [ ] Create Stripe product/price.
-- [ ] Add create checkout route.
-- [ ] Add webhook route.
-- [ ] Store checkout session ID.
-- [ ] Mark paid on webhook.
-- [ ] Add success page.
-- [ ] Test payment flow end-to-end.
+- [ ] Add admin password page.
+- [ ] Add signed HTTP-only admin session cookie.
+- [ ] Add audit table.
+- [ ] Add audit detail page.
+- [ ] Add delete action.
+- [ ] Add error visibility.
 
 ### Phase 7 — Polish/security
 
@@ -1418,30 +1195,20 @@ Later use analytics tool if needed.
 - [ ] Add mobile polish.
 - [ ] Add production env checks.
 
-### Phase 8 — Deploy
-
-- [ ] Create production database.
-- [ ] Configure DigitalOcean deployment.
-- [ ] Set production env vars.
-- [ ] Configure Stripe webhook live endpoint.
-- [ ] Run production smoke test.
-- [ ] Test payment in live or restricted live mode.
-
 ---
 
-## 29. Future roadmap
+## 28. Future Roadmap
 
 ### v0.2
 
 - Crawl homepage + 3–5 same-domain pages.
 - Better URL discovery.
-- Store reports by email.
 - Optional email delivery of report.
 - Better analytics.
 
 ### v0.3
 
-- Firecrawl integration as advanced scrape provider.
+- Optional advanced scrape provider.
 - PDF upload.
 - Compare before/after website improvements.
 - More business-type templates.
@@ -1451,489 +1218,26 @@ Later use analytics tool if needed.
 - User accounts.
 - Dashboard/history.
 - Monthly website re-audit.
-- Subscriptions.
 - Knowledge base.
 - RAG Q&A.
 - Website chat widget.
 
 ---
 
-## 30. Open decisions
+## 29. Open Decisions
 
 These can be decided later and should not block MVP development:
 
-1. Final product name.
+1. Final project name.
 2. Final LLM provider/model.
-3. Final design system/component library.
-4. Whether to use DigitalOcean App Platform or a Droplet first.
-5. Whether to add email delivery immediately after payment.
-6. Whether to include “manual text only” mode on the landing page from day one.
+3. Whether to use DigitalOcean App Platform or a Droplet first.
+4. Whether to include “manual text only” mode on the landing page from day one.
 
 Recommended defaults:
 
 ```text
-Product name: SiteGap AI or FAQGap
+Project name: SiteGap AI or Website Content Audit Tool
 LLM provider: keep provider behind adapter
-Deployment: DigitalOcean App Platform if simple enough; Droplet + Docker Compose if more control is needed
-Email delivery: later
+Deployment: decide later
 Manual text mode: include as optional context from day one
 ```
-
-
-дополнительно апдейт 
-Вот кусок для вставки в `SPEC.md`:
-
-## **Internal Admin MVP**
-
-The MVP should include a minimal internal admin area for the project owner.
-
-This is not a customer-facing dashboard. It exists only to monitor generated audits, debug failures, and manually recover broken payment or generation flows.
-
-### **Route**
-
-```text
-/admin
-```
-
-### **Access Protection**
-
-For the MVP, the admin area can be protected with a simple environment-based password.
-
-```env
-ADMIN_PASSWORD=change-me
-ADMIN_SESSION_SECRET=change-me
-```
-
-Recommended MVP behavior:
-
-```text
-1. User opens /admin.
-2. If no valid admin session exists, show a password form.
-3. If password matches ADMIN_PASSWORD, create a signed HTTP-only session cookie.
-4. Admin pages are accessible only with a valid session cookie.
-```
-
-This is enough for the MVP. Later, it can be replaced with a proper authentication system such as Clerk, Supabase Auth, Auth.js, or a custom admin user model.
-
-### **Admin Features for MVP**
-
-The `/admin` page should show a table of all audit reports.
-
-Required columns:
-
-```text
-- Audit ID
-- Website URL
-- Business type
-- Email, if provided
-- Audit status
-- Payment status
-- Created date
-- Updated date
-```
-
-Required filters:
-
-```text
-- All
-- READY
-- FAILED
-- PAID
-- UNPAID
-```
-
-Each audit should have a detail page:
-
-```text
-/admin/audits/[id]
-```
-
-The detail page should show:
-
-```text
-- Website URL
-- Business type
-- Email
-- Status
-- Payment status
-- Stripe Checkout Session ID
-- Stripe Payment Intent ID
-- Extracted text length
-- Preview report JSON
-- Full report JSON
-- Error message, if failed
-- Created date
-- Updated date
-```
-
-Required MVP admin actions:
-
-```text
-- Open audit preview
-- Open full report as admin
-- Delete audit
-- Manually mark audit as PAID
-- Manually mark audit as FAILED
-```
-
-Nice-to-have admin actions after MVP:
-
-```text
-- Retry generation
-- Regenerate report
-- Re-send report link by email
-- Refund status sync from Stripe
-- Export audit as Markdown
-```
-
-### **Admin Security Notes**
-
-Admin routes must never expose secrets to the browser.
-
-Do not show:
-
-```text
-- OpenAI API key
-- Stripe secret key
-- Stripe webhook secret
-- Database URL
-- Admin password
-```
-
-Admin actions should be server-side only.
-
-The admin password must never be committed to GitHub. It should exist only in local `.env` files and production environment variables.
-
----
-
-## **Architecture Evolution Plan**
-
-The MVP should start as a modular monolith, not as microservices.
-
-### **Stage 1: MVP Modular Monolith**
-
-Use one Next.js fullstack application.
-
-```text
-Next.js app
-  ├── UI pages
-  ├── API routes / route handlers
-  ├── Stripe webhook
-  ├── audit generation logic
-  ├── scraping logic
-  ├── AI report generation
-  ├── admin area
-  └── database access
-```
-
-This keeps the first version simple:
-
-```text
-- one repository
-- one app to run locally
-- one deployment target
-- fewer DevOps problems
-- faster iteration
-```
-
-However, the code should still be organized into modules so it can grow later.
-
-Recommended structure:
-
-```text
-src/
-  app/
-    page.tsx
-    audit/[id]/page.tsx
-    success/page.tsx
-    admin/page.tsx
-    admin/audits/[id]/page.tsx
-    api/
-      audits/route.ts
-      audits/[id]/route.ts
-      stripe/create-checkout-session/route.ts
-      stripe/webhook/route.ts
-
-  modules/
-    audit/
-      audit.service.ts
-      audit.repository.ts
-      audit.types.ts
-
-    scraping/
-      scraper.service.ts
-      scraper.types.ts
-      providers/
-        basic-scraper.ts
-        firecrawl-scraper.ts
-
-    ai/
-      report-generator.ts
-      prompts.ts
-      schemas.ts
-
-    billing/
-      stripe.service.ts
-      billing.types.ts
-
-    export/
-      markdown-export.ts
-      html-faq-export.ts
-
-    admin/
-      admin.service.ts
-      admin-auth.ts
-
-  db/
-    prisma.ts
-```
-
-Route handlers should stay thin. Business logic should live inside modules.
-
-Bad:
-
-```text
-app/api/audits/route.ts contains 400 lines of scraping, AI, DB, and Stripe logic.
-```
-
-Good:
-
-```ts
-export async function POST(req: Request) {
-  return createAuditController(req)
-}
-```
-
-The controller/service can then call:
-
-```ts
-auditService.createAudit()
-scraperService.scrapeHomepage()
-aiService.generateReport()
-billingService.createCheckoutSession()
-```
-
-### **Stage 2: Background Jobs**
-
-If audit generation becomes slow or unreliable inside a normal request/response flow, add a job queue.
-
-Possible queue options:
-
-```text
-- BullMQ + Redis
-- Trigger.dev
-- Inngest
-- Temporal, later if the system becomes complex
-```
-
-Future flow:
-
-```text
-User creates audit
-  ↓
-Audit saved with status PROCESSING
-  ↓
-Generation job added to queue
-  ↓
-Worker processes scraping + AI generation
-  ↓
-Database updated to READY or FAILED
-```
-
-### **Stage 3: Separate Worker**
-
-When scraping, crawling, PDF processing, or AI generation becomes heavier, move background work into a separate worker process.
-
-```text
-web-app
-  ├── handles UI
-  ├── handles Stripe
-  ├── handles admin
-  └── creates jobs
-
-worker
-  ├── processes audit generation jobs
-  ├── runs scraping
-  ├── runs AI report generation
-  └── updates database
-```
-
-At this stage, the system may still be a monorepo and not true microservices.
-
-Recommended future structure:
-
-```text
-apps/
-  web/
-  worker/
-
-packages/
-  database/
-  core/
-  ai/
-  scraping/
-  billing/
-```
-
-### **Stage 4: Optional Separate API**
-
-If the backend becomes too large for Next.js route handlers, introduce a dedicated API service.
-
-Possible options:
-
-```text
-- NestJS
-- Express
-- Fastify
-```
-
-NestJS is a good candidate if the system grows into a larger backend with many modules, background jobs, permissions, customer accounts, and integrations.
-
-Possible future architecture:
-
-```text
-apps/
-  web/       # Next.js frontend
-  api/       # NestJS API
-  worker/    # background jobs
-
-packages/
-  database/
-  shared/
-  ai/
-  scraping/
-  billing/
-```
-
-This should not be done for the MVP unless there is a clear need.
-
-### **Stage 5: Microservices Only If Needed**
-
-Do not start with microservices.
-
-Microservices should only be considered if there are real scaling or organizational reasons, such as:
-
-```text
-- crawling has independent scaling needs
-- AI processing needs separate infrastructure
-- a team is working on different services independently
-- deployment boundaries become necessary
-- one part of the system requires a different runtime or language
-```
-
-Possible future services:
-
-```text
-- web-app
-- api-service
-- scraper-service
-- ai-service
-- billing-service
-- worker-service
-```
-
-For the MVP and early product, this would be overengineering.
-
----
-
-## **Repository and Development Setup**
-
-The project should use a private GitHub repository.
-
-Recommended repository type:
-
-```text
-Private GitHub repo
-```
-
-Do not commit secrets.
-
-The repository should include:
-
-```text
-.env.example
-.gitignore
-README.md
-SPEC.md
-docker-compose.yml
-Dockerfile
-```
-
-The repository must not include:
-
-```text
-.env
-.env.local
-production database URLs
-OpenAI API keys
-Stripe secret keys
-Stripe webhook secrets
-admin passwords
-```
-
-Example `.env.example`:
-
-```env
-DATABASE_URL=
-LLM_PROVIDER=gemini
-LLM_API_KEY=
-LLM_MODEL=gemini-2.0-flash
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-NEXT_PUBLIC_APP_URL=
-ADMIN_PASSWORD=
-ADMIN_SESSION_SECRET=
-```
-
-Local development should run with Docker Compose.
-
-Recommended local services:
-
-```text
-app
-postgres
-```
-
-Optional later services:
-
-```text
-redis
-worker
-```
-
-MVP local command goal:
-
-```bash
-docker compose up
-```
-
-This should start the app and the database locally.
-
----
-
-## **Scaffold Definition**
-
-In this project, “scaffold” means creating the initial technical skeleton of the application.
-
-The scaffold is not the full product. It is the base structure needed to start building features safely.
-
-The scaffold should include:
-
-```text
-- Next.js project
-- TypeScript
-- ESLint / Prettier
-- Dockerfile
-- docker-compose.yml
-- PostgreSQL service
-- Prisma setup
-- initial database schema
-- environment variable structure
-- .env.example
-- basic landing page
-- basic audit route
-- basic admin route placeholder
-- basic folder/module structure
-```
-
-After the scaffold is done, feature development can begin on top of it.
