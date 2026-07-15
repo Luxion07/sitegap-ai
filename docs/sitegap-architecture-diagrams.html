@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteGap AI — Architecture Diagrams</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#151b23;
+    --panel2:#1c2430;
+    --line:#2a3441;
+    --text:#dce3ea;
+    --muted:#8b98a5;
+    --accent:#4fd1c5;
+    --accent-dim:#2c7a73;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    min-height:100vh;
+    padding:32px 20px 60px;
+  }
+  .wrap{max-width:1100px;margin:0 auto}
+  header{margin-bottom:28px}
+  .eyebrow{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:10px;
+  }
+  h1{font-size:26px;font-weight:650;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin-top:8px;font-size:14px;line-height:1.5;max-width:640px}
+
+  nav{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin:26px 0 18px;
+  }
+  nav button{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--muted);
+    font:inherit;font-size:13px;
+    padding:8px 14px;border-radius:8px;
+    cursor:pointer;transition:all .15s;
+  }
+  nav button:hover{color:var(--text);border-color:var(--accent-dim)}
+  nav button.active{
+    color:#08110f;background:var(--accent);
+    border-color:var(--accent);font-weight:600;
+  }
+  nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    display:none;
+  }
+  .card.show{display:block}
+  .card-head{
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;
+  }
+  .card-head h2{font-size:16px;font-weight:600}
+  .tag{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px;color:var(--accent);
+    background:rgba(79,209,197,.08);
+    border:1px solid rgba(79,209,197,.25);
+    padding:2px 8px;border-radius:99px;
+  }
+  .card-desc{
+    padding:12px 20px 0;color:var(--muted);
+    font-size:13px;line-height:1.55;
+  }
+  .diagram{
+    padding:20px;overflow-x:auto;
+    display:flex;justify-content:center;
+  }
+  .diagram svg{max-width:100%;height:auto}
+  .err{color:#f08080;font-family:ui-monospace,monospace;font-size:12px;padding:20px}
+
+  footer{
+    margin-top:26px;color:var(--muted);
+    font-size:12.5px;line-height:1.6;
+    border-top:1px solid var(--line);padding-top:16px;
+  }
+  footer code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--panel2);padding:1px 6px;border-radius:4px;
+    font-size:11.5px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    nav button{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">sitegap-ai · docs/ARCHITECTURE</div>
+    <h1>Архитектурные диаграммы сервиса</h1>
+    <p class="sub">Все схемы из ARCHITECTURE.md, отрендеренные из Mermaid-кода. У каждой подписан её правильный тип — эти названия пригодятся на собеседованиях по system design.</p>
+  </header>
+
+  <nav id="tabs" role="tablist"></nav>
+  <div id="cards"></div>
+
+  <footer>
+    Источник схем — <code>docs/ARCHITECTURE.md</code> в репозитории (diagrams as code, Mermaid).
+    GitHub и Obsidian рендерят их нативно; для экспорта в SVG/PNG — <code>mermaid.live</code>.
+  </footer>
+</div>
+
+<script>
+const DIAGRAMS = [
+  {
+    id:'context',
+    tab:'Контекст системы',
+    title:'Система в целом: кто и с чем взаимодействует',
+    type:'C4 — System Context diagram',
+    desc:'Самый верхний уровень: сервис как чёрный ящик и его окружение — пользователь, админ, целевой сайт, LLM API и база. С этой схемы правильно начинать любой рассказ об архитектуре.',
+    code:`flowchart LR
+  User[User]
+  Admin[Admin / owner]
+  App[Next.js fullstack app]
+  DB[(PostgreSQL)]
+  LLM[LLM API]
+  Website[Target website]
+
+  User -->|"URL + optional text"| App
+  App -->|"fetch homepage HTML"| Website
+  App -->|"generate audit report"| LLM
+  App -->|"store audit + report"| DB
+  User -->|"view report, export MD/HTML"| App
+  Admin -->|"monitor audits & failures"| App`
+  },
+  {
+    id:'runtime',
+    tab:'Модули приложения',
+    title:'Внутреннее устройство: страницы, роуты, модули',
+    type:'C4 — Container / Component diagram',
+    desc:'Уровень глубже: из чего состоит само приложение. Роуты тонкие, вся бизнес-логика в модулях src/modules/* — это и есть модульный монолит.',
+    code:`flowchart TB
+  subgraph Browser
+    Landing[Landing page]
+    Report[Audit report page]
+    AdminUI[Admin UI]
+  end
+
+  subgraph NextApp["Next.js application"]
+    Routes[Route handlers]
+    AuditM[Audit module]
+    ScrapeM[Scraping module]
+    AIM[AI report module]
+    ExportM[Export module MD/HTML]
+    AdminM[Admin module]
+  end
+
+  DB[(PostgreSQL + Prisma)]
+  LLM[LLM API]
+  Site[External website]
+
+  Landing --> Routes
+  Report --> Routes
+  AdminUI --> Routes
+
+  Routes --> AuditM
+  Routes --> AdminM
+  AuditM --> ScrapeM
+  AuditM --> AIM
+  AuditM --> ExportM
+  AuditM --> DB
+  ScrapeM --> Site
+  AIM --> LLM
+  AdminM --> DB`
+  },
+  {
+    id:'sequence',
+    tab:'Генерация отчёта',
+    title:'Путь одного аудита от формы до отчёта',
+    type:'UML — Sequence diagram',
+    desc:'Порядок вызовов во времени для главного сценария. В MVP весь пайплайн выполняется синхронно внутри одного POST-запроса — клиент ждёт результат.',
+    code:`sequenceDiagram
+  actor User
+  participant UI as Next.js UI
+  participant API as /api/audits
+  participant Audit as Audit service
+  participant Scraper as Scraper
+  participant AI as AI generator
+  participant DB as PostgreSQL
+  participant LLM as LLM API
+
+  User->>UI: URL + optional text
+  UI->>API: POST /api/audits
+  API->>Audit: createAudit(input)
+  Audit->>DB: status = PROCESSING
+  Audit->>Scraper: scrapeHomepage(url)
+  Scraper-->>Audit: extracted text
+  Audit->>AI: generateReport(text, context)
+  AI->>LLM: structured prompt
+  LLM-->>AI: JSON report
+  AI-->>Audit: validated JSON
+  Audit->>DB: save report, status = READY
+  API-->>UI: redirect /audit/:id
+  UI-->>User: show report`
+  },
+  {
+    id:'state',
+    tab:'Статусы аудита',
+    title:'Жизненный цикл аудита',
+    type:'UML — State diagram',
+    desc:'Все состояния одной сущности Audit и переходы между ними. Маленькая, но именно такие схемы любят спрашивать: «а что будет, если генерация упала?»',
+    code:`stateDiagram-v2
+  [*] --> PROCESSING: User submits URL
+  PROCESSING --> READY: Report generated
+  PROCESSING --> FAILED: Scraping or AI error
+  FAILED --> PROCESSING: Retry later
+  READY --> [*]`
+  },
+  {
+    id:'er',
+    tab:'Модель данных',
+    title:'Таблицы и их поля',
+    type:'ER diagram (Entity–Relationship)',
+    desc:'Структура базы: Audit хранит вход, извлечённый текст, JSON-отчёт и готовые экспорты; RateLimitEvent — события для rate limiting по хешу IP.',
+    code:`erDiagram
+  Audit {
+    string id PK
+    string websiteUrl
+    string businessType
+    string status
+    string sourceText
+    json reportJson
+    string markdownReport
+    string htmlFaqBlock
+    string errorCode
+    datetime createdAt
+  }
+  RateLimitEvent {
+    string id PK
+    string ipHash
+    string action
+    datetime createdAt
+  }`
+  },
+  {
+    id:'admin',
+    tab:'Админка',
+    title:'Вход в админку и действия',
+    type:'Flowchart (activity diagram)',
+    desc:'Простая логика доступа: пароль из env → подписанная HTTP-only cookie → таблица аудитов и действия над ними.',
+    code:`flowchart TD
+  Admin[Open /admin] --> Check{Valid session?}
+  Check -- No --> Login[Password form]
+  Login --> Valid{Matches ADMIN_PASSWORD?}
+  Valid -- No --> Login
+  Valid -- Yes --> Cookie[Signed HTTP-only cookie]
+  Cookie --> Dash[Dashboard]
+  Check -- Yes --> Dash
+  Dash --> List[Audits table]
+  List --> Detail[Audit detail]
+  Detail --> A1[Mark as FAILED]
+  Detail --> A2[Delete audit]
+  Detail --> A3[Open report]`
+  },
+  {
+    id:'worker',
+    tab:'Phase 9 · Go worker',
+    title:'Будущее: асинхронная генерация через Go-воркер',
+    type:'C4 — Container diagram (target state)',
+    desc:'Целевая архитектура Phase 9: POST только ставит задачу в Redis и сразу отвечает, отдельный воркер на Go делает тяжёлую работу, страница отчёта поллит статус. Красивая история для собеса: «монолит → очередь → воркер».',
+    code:`flowchart TB
+  User[User]
+  Web["Next.js web app<br/>(validate, enqueue, poll)"]
+  Queue[("Redis queue")]
+  Worker["Audit worker — Go<br/>(fetch, extract, LLM, save)"]
+  DB[(PostgreSQL)]
+  LLM[LLM API]
+  Site[Target website]
+
+  User --> Web
+  Web -->|"create audit PROCESSING"| DB
+  Web -->|"push job"| Queue
+  Queue -->|"BLPOP"| Worker
+  Worker -->|"SSRF-safe fetch"| Site
+  Worker -->|"structured prompt"| LLM
+  Worker -->|"READY / FAILED"| DB
+  Web -->|"GET /api/audits/:id (poll)"| DB`
+  }
+];
+
+mermaid.initialize({
+  startOnLoad:false,
+  theme:'base',
+  themeVariables:{
+    darkMode:true,
+    background:'#151b23',
+    primaryColor:'#1c2430',
+    primaryTextColor:'#dce3ea',
+    primaryBorderColor:'#4fd1c5',
+    lineColor:'#8b98a5',
+    secondaryColor:'#1c2430',
+    tertiaryColor:'#10151c',
+    fontFamily:'ui-sans-serif, -apple-system, Segoe UI, sans-serif',
+    fontSize:'14px'
+  }
+});
+
+const tabs = document.getElementById('tabs');
+const cards = document.getElementById('cards');
+
+DIAGRAMS.forEach((d,i)=>{
+  const b = document.createElement('button');
+  b.textContent = d.tab;
+  b.setAttribute('role','tab');
+  b.onclick = ()=>select(d.id);
+  b.id = 'tab-'+d.id;
+  tabs.appendChild(b);
+
+  const c = document.createElement('section');
+  c.className = 'card';
+  c.id = 'card-'+d.id;
+  c.innerHTML = `
+    <div class="card-head">
+      <h2>${d.title}</h2>
+      <span class="tag">${d.type}</span>
+    </div>
+    <p class="card-desc">${d.desc}</p>
+    <div class="diagram" id="dg-${d.id}"></div>`;
+  cards.appendChild(c);
+});
+
+async function renderAll(){
+  for(const d of DIAGRAMS){
+    const target = document.getElementById('dg-'+d.id);
+    try{
+      const {svg} = await mermaid.render('m-'+d.id, d.code);
+      target.innerHTML = svg;
+    }catch(e){
+      target.innerHTML = '<div class="err">Render error: '+e.message+'</div>';
+    }
+  }
+}
+
+function select(id){
+  DIAGRAMS.forEach(d=>{
+    document.getElementById('card-'+d.id).classList.toggle('show', d.id===id);
+    document.getElementById('tab-'+d.id).classList.toggle('active', d.id===id);
+  });
+}
+
+renderAll().then(()=>select(DIAGRAMS[0].id));
+</script>
+</body>
+</html>
