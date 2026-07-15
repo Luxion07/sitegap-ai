@@ -98,6 +98,12 @@ Acceptance criteria:
 
 Goal: build the user input flow.
 
+> **Status note:** The `POST /api/audits` scaffold already exists (route → service →
+> repository, Zod-validated) — it currently only inserts an audit row with status
+> `PROCESSING` (no scrape/AI yet, those arrive in Phases 4–5, so audits created now
+> stay `PROCESSING`). Phase 3 is therefore now **frontend only**: build the landing
+> page and form that call this existing endpoint.
+
 Tasks:
 
 - [ ] Build landing page.
@@ -240,3 +246,60 @@ Acceptance criteria:
 - Common errors are handled.
 - No secrets in repo.
 - Build, lint, and typecheck pass.
+
+---
+
+## Phase 9 — Go Audit Worker (post-MVP)
+
+Goal: move audit generation from the synchronous POST request into a
+background worker written in Go, communicating through a Redis queue.
+
+> **Do not start this phase before Phase 6 is complete and deployed.**
+> This phase intentionally changes the architecture described in
+> ARCHITECTURE.md §8 (Stage 2 → Stage 3). Update ARCHITECTURE.md first.
+
+### Architecture change
+
+- `POST /api/audits` no longer runs scraping/AI inline. It validates input,
+  creates the audit with status `PROCESSING`, pushes a job to Redis,
+  and returns immediately.
+- The report page polls `GET /api/audits/[id]` until status is `READY` or `FAILED`.
+- A separate Go service (`/worker`) consumes jobs from Redis:
+  fetch homepage → extract text → call LLM → validate JSON → write report to Postgres.
+
+### Constraints
+
+- Go 1.22+, standard project layout (`cmd/worker`, `internal/...`).
+- Redis as the queue (simple `BLPOP`/stream consumer, no heavy frameworks).
+- Reuse the existing Postgres schema; the worker writes to the same `Audit` table.
+- Reimplement SSRF validation in Go with the same rules as the Node version
+  (same blocked ranges, redirect revalidation, timeouts, size limits).
+- LLM call goes through a provider adapter, configurable via env vars
+  (same env var names as the Next.js app where possible).
+- Graceful shutdown: finish the current job, mark stale jobs as FAILED.
+- Retry policy: max 1 retry per job, then status FAILED with errorCode.
+- Docker: add `worker` and `redis` services to docker-compose.yml.
+
+### Tasks
+
+- [ ] Update ARCHITECTURE.md (Stage 3 diagram becomes current).
+- [ ] Add `redis` service to docker-compose.yml.
+- [ ] Scaffold Go module in `/worker` (cmd/worker, internal/queue, internal/scraper, internal/ai, internal/db).
+- [ ] Implement Redis job consumer.
+- [ ] Port SSRF-safe fetcher + HTML text extraction to Go.
+- [ ] Implement LLM adapter in Go with strict JSON schema validation.
+- [ ] Write results to Postgres (READY / FAILED + errorCode).
+- [ ] Change `POST /api/audits` to enqueue instead of inline generation.
+- [ ] Add polling on the report page.
+- [ ] Unit tests: SSRF validator, JSON schema validation, queue handler.
+- [ ] Update README (run app + worker locally).
+
+### Acceptance criteria
+
+- Submitting an audit returns instantly with `PROCESSING`.
+- Worker picks up the job and the report page flips to `READY` without a full
+  reload (via polling).
+- Killing the worker mid-job does not corrupt data; job ends as FAILED or is
+  retried once.
+- All SSRF cases blocked in the Node version are blocked in the Go version.
+- `docker compose up` starts app + postgres + redis + worker.

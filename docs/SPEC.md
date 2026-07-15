@@ -371,11 +371,17 @@ The LLM should return strict JSON matching this shape:
       "suggestedCopy": "string",
       "priority": "HIGH | MEDIUM | LOW"
     }
-  ],
-  "htmlFaqBlock": "string",
-  "markdownReport": "string"
+  ]
 }
 ```
+
+> **Note (design decision):** The LLM returns **structured content only**. The
+> `htmlFaqBlock` and `markdownReport` are **not** produced by the model — they are
+> built deterministically in code by the Export module (`markdown-export.ts`,
+> `html-faq-export.ts`) from the structured JSON above. This is cheaper (fewer
+> tokens), deterministic, testable, and keeps us in full control of the HTML that
+> users copy to their own sites. The derived values are still cached in the
+> `markdownReport` / `htmlFaqBlock` DB columns.
 
 ---
 
@@ -744,6 +750,18 @@ Behavior:
 10. Build markdown report.
 11. Store report.
 12. Return audit ID.
+
+> **Note (design decision — synchronous MVP):** In the MVP this whole flow runs
+> **synchronously inside the single POST request**. The client waits for the full
+> fetch + LLM + export pipeline and receives `READY` (or `FAILED`) directly.
+>
+> The `PROCESSING` status and the `/audit/[id]` "Processing" screen are therefore
+> **forward-compatible scaffolding for Stage 2** (see ARCHITECTURE §8): when audit
+> generation is moved to a background queue/worker, POST will return `PROCESSING`
+> immediately and the client will poll `GET /api/audits/[id]` until it flips to
+> `READY`/`FAILED`. Until then, the report page's "Processing" state is effectively
+> just the form's loading state. We build the synchronous version first, then swap
+> in the async pipeline as a separate step.
 
 Response success:
 

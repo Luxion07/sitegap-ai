@@ -6,10 +6,9 @@ info:
 http:
   method: POST
   url: "{{baseUrl}}/api/audits"
-  auth: none
   body:
-    mode: json
-    json: |
+    type: json
+    data: |
       {
         "websiteUrl": "https://example.com",
         "businessType": "LOCAL_SERVICE",
