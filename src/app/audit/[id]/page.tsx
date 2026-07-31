@@ -34,13 +34,16 @@ export default async function AuditPage(props: PageProps<"/audit/[id]">) {
               {audit.websiteUrl}
             </p>
             <div className="flex flex-col items-start gap-3">
-              {PROCESSING_STEPS.map((step) => (
+              {PROCESSING_STEPS.map((step, index) => (
                 <div
                   key={step}
                   className="flex items-center gap-2.5 text-[13.5px] text-muted-foreground"
                 >
                   <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                    <span className="size-1.5 rounded-full bg-primary" />
+                    <span
+                      className="size-1.5 animate-dot-pulse rounded-full bg-primary"
+                      style={{ animationDelay: `${index * 650}ms` }}
+                    />
                   </span>
                   {step}
                 </div>
