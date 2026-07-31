@@ -1,0 +1,23 @@
+{
+  "name": "sitegap-ai",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js dev server",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "postCreateCommand": "corepack enable && corepack prepare pnpm@9 --activate && pnpm install && npm install -g @anthropic-ai/claude-code",
+  "postStartCommand": "test -f .env || cp env.example .env",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}
