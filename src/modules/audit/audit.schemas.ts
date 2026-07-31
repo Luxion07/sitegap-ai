@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const createAuditSchema = z.object({
-  websiteUrl: z.url("Please enter a valid website URL."),
+  websiteUrl: z.httpUrl("Please enter a valid website URL."),
   businessType: z.enum(
     ["LOCAL_SERVICE", "B2B_SERVICE", "AGENCY_CONSULTING", "OTHER_SERVICE"],
     "Please select a business type."
