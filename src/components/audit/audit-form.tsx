@@ -95,7 +95,7 @@ export function AuditForm() {
             htmlFor="websiteUrl"
             className="mb-2 block text-[13px] font-semibold"
           >
-            Website URL
+            Website URL <span className="text-destructive">*</span>
           </Label>
           <Input
             id="websiteUrl"
@@ -114,7 +114,7 @@ export function AuditForm() {
 
         <div className="mb-5">
           <Label className="mb-2 block text-[13px] font-semibold">
-            Business type
+            Business type <span className="text-destructive">*</span>
           </Label>
           <Select
             value={businessType}

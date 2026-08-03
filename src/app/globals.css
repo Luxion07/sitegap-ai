@@ -117,6 +117,26 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@keyframes dot-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+}
+
+.animate-dot-pulse {
+  animation: dot-pulse 2s ease-in-out infinite backwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
