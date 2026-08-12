@@ -29,27 +29,28 @@ Goal: create the technical skeleton only.
 
 Tasks:
 
-- [ ] Create Next.js application with TypeScript.
-- [ ] Configure pnpm.
-- [ ] Add Tailwind CSS.
-- [ ] Add shadcn/ui setup.
-- [ ] Add Dockerfile.
-- [ ] Add docker-compose.yml with app + postgres.
-- [ ] Add Prisma.
-- [ ] Add initial Prisma schema.
-- [ ] Add `.env.example`.
-- [ ] Add `/api/health`.
-- [ ] Add placeholder landing page `/`.
-- [ ] Add placeholder report page `/audit/[id]`.
-- [ ] Add placeholder admin page `/admin`.
-- [ ] Add recommended folder structure:
+- [x] Create Next.js application with TypeScript.
+- [x] Configure pnpm.
+- [x] Add Tailwind CSS.
+- [x] Add shadcn/ui setup.
+- [x] Add Dockerfile.
+- [x] Connect a hosted Supabase Postgres database. (Superseded the local
+      `docker-compose.yml` + postgres container — see SPEC §24.)
+- [x] Add Prisma.
+- [x] Add initial Prisma schema.
+- [x] Add `.env.example`.
+- [x] Add `/api/health`.
+- [x] Add placeholder landing page `/`.
+- [x] Add placeholder report page `/audit/[id]`.
+- [x] Add placeholder admin page `/admin`.
+- [x] Add recommended folder structure:
   - `src/modules/audit`
   - `src/modules/scraping`
   - `src/modules/ai`
   - `src/modules/export`
   - `src/modules/admin`
   - `src/db`
-- [ ] Add basic README commands.
+- [x] Add basic README commands.
 
 Do not implement:
 
@@ -63,7 +64,7 @@ Do not implement:
 Acceptance criteria:
 
 - `pnpm install` works.
-- `docker compose up --build` starts app and postgres.
+- `pnpm dev` starts the app against the Supabase database.
 - `/` renders.
 - `/admin` renders placeholder.
 - `/api/health` returns OK.
@@ -77,13 +78,13 @@ Goal: add database models and Prisma workflow.
 
 Tasks:
 
-- [ ] Add `Audit` model.
+- [x] Add `Audit` model.
 - [ ] Add `RateLimitEvent` model.
-- [ ] Add `AuditStatus` enum.
-- [ ] Add `BusinessType` enum.
-- [ ] Add Prisma migration.
-- [ ] Add `src/db/prisma.ts`.
-- [ ] Add basic audit repository.
+- [x] Add `AuditStatus` enum.
+- [x] Add `BusinessType` enum.
+- [x] Add Prisma migration.
+- [x] Add `src/db/prisma.ts`.
+- [x] Add basic audit repository.
 
 Acceptance criteria:
 
@@ -106,14 +107,14 @@ Goal: build the user input flow.
 
 Tasks:
 
-- [ ] Build landing page.
-- [ ] Add `AuditForm`.
-- [ ] Add URL input.
-- [ ] Add business type selector.
-- [ ] Add optional manual context textarea.
-- [ ] Add Zod validation.
-- [ ] Add loading state.
-- [ ] Add user-friendly validation errors.
+- [x] Build landing page.
+- [x] Add `AuditForm`.
+- [x] Add URL input.
+- [x] Add business type selector.
+- [x] Add optional manual context textarea.
+- [x] Add Zod validation.
+- [x] Add loading state.
+- [x] Add user-friendly validation errors.
 
 Acceptance criteria:
 
@@ -278,7 +279,8 @@ background worker written in Go, communicating through a Redis queue.
   (same env var names as the Next.js app where possible).
 - Graceful shutdown: finish the current job, mark stale jobs as FAILED.
 - Retry policy: max 1 retry per job, then status FAILED with errorCode.
-- Docker: add `worker` and `redis` services to docker-compose.yml.
+- Docker: introduce a `docker-compose.yml` with `worker` and `redis` services
+  (Postgres stays on Supabase).
 
 ### Tasks
 
@@ -302,4 +304,4 @@ background worker written in Go, communicating through a Redis queue.
 - Killing the worker mid-job does not corrupt data; job ends as FAILED or is
   retried once.
 - All SSRF cases blocked in the Node version are blocked in the Go version.
-- `docker compose up` starts app + postgres + redis + worker.
+- `docker compose up` starts app + redis + worker.

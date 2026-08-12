@@ -45,3 +45,6 @@ next-env.d.ts
 .claude/
 
 /src/generated/prisma
+
+# Local working notes (deliberately not versioned)
+/docs/needToDo.md

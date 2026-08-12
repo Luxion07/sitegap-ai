@@ -9,7 +9,6 @@ The project is intended for learning and experimentation with:
 - PostgreSQL and Prisma
 - AI-assisted report generation
 - Admin tooling
-- Docker-based local development
 
 This repository does not include production credentials, customer data, or commercial deployment configuration.
 
@@ -22,9 +21,8 @@ This repository does not include production credentials, customer data, or comme
 - pnpm
 - Tailwind CSS
 - shadcn/ui
-- PostgreSQL
+- PostgreSQL (Supabase)
 - Prisma
-- Docker Compose
 - LLM provider adapter
 
 ---
@@ -49,10 +47,14 @@ Read these before implementation:
 
 ## Local Development
 
+The database is hosted on Supabase — there is no local Postgres container.
+Fill `DATABASE_URL` and `DIRECT_URL` in `.env` before running migrations.
+
 ```bash
-cp .env.example .env
-pnpm install
-docker compose up --build
+cp env.example .env
+pnpm install          # also runs prisma generate
+pnpm prisma:migrate
+pnpm dev
 ```
 
 Prisma commands:
@@ -61,12 +63,6 @@ Prisma commands:
 pnpm prisma:generate
 pnpm prisma:migrate
 pnpm prisma:studio
-```
-
-App:
-
-```bash
-pnpm dev
 ```
 
 ---
