@@ -47,3 +47,6 @@ next-env.d.ts
 .codex/
 
 /src/generated/prisma
+
+# Local working notes (deliberately not versioned)
+/docs/needToDo.md
