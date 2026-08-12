@@ -54,7 +54,7 @@ The first version is **not** a chatbot, not RAG, not a knowledge base, and not a
 | UI                | Tailwind CSS + shadcn/ui                                           |
 | API style         | Next.js App Router Route Handlers                                  |
 | Database          | PostgreSQL + Prisma                                                |
-| Development       | Docker Compose locally                                             |
+| Development       | `pnpm dev` against a hosted Supabase database                      |
 | Deployment        | Docker-compatible deployment                                       |
 | UI quality        | Production-looking, not a throwaway demo                           |
 
@@ -538,7 +538,7 @@ API: Next.js Route Handlers
 DB: PostgreSQL
 ORM: Prisma
 Styling: Tailwind CSS + shadcn/ui
-Local dev: Docker Compose
+Local dev: pnpm dev + hosted Supabase Postgres
 Production: Docker-compatible deployment
 LLM: provider adapter, model configurable through env vars
 Default MVP provider: Google Gemini through adapter
@@ -1050,20 +1050,29 @@ ADMIN_SESSION_SECRET="random-secret"
 
 ---
 
-## 24. Local Development with Docker
+## 24. Local Development
 
-### Services
+> **Note (design decision — 2026-08-12):** The MVP no longer runs a local Postgres
+> container. The database is a hosted **Supabase** instance, used by both local
+> development and deployment, so there is a single source of truth for schema and
+> data. `docker-compose.yml` was removed: with the database external, it only
+> duplicated `pnpm dev`, and the `Dockerfile` is dev-only (`CMD pnpm dev`) so it
+> could not serve deployment either. A proper multi-stage production Dockerfile
+> is added when there is somewhere to deploy to.
+
+### Database
 
 ```text
-app: Next.js app
-postgres: local PostgreSQL database
+Supabase Postgres
+DATABASE_URL = transaction pooler (port 6543) — used by the app at runtime
+DIRECT_URL   = direct connection (port 5432) — used by prisma migrate/generate
 ```
 
 ### Commands
 
 ```bash
-cp .env.example .env
-docker compose up --build
+cp env.example .env
+pnpm install          # postinstall runs prisma generate
 pnpm prisma:migrate
 pnpm dev
 ```
@@ -1135,7 +1144,7 @@ Production deployment should use managed PostgreSQL or a backed-up database.
 
 ### Development
 
-- App runs locally with Docker Compose.
+- App runs locally with `pnpm dev` against Supabase.
 - App uses pnpm.
 - App uses PostgreSQL and Prisma.
 - Environment variables are separated from committed files.
@@ -1150,7 +1159,7 @@ Production deployment should use managed PostgreSQL or a backed-up database.
 - [ ] Use pnpm.
 - [ ] Add Tailwind + shadcn/ui.
 - [ ] Add Prisma.
-- [ ] Add PostgreSQL Docker Compose.
+- [ ] Connect a hosted Supabase Postgres database.
 - [ ] Create Prisma schema.
 - [ ] Add `.env.example`.
 - [ ] Add basic health route.

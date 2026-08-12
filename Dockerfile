@@ -1,3 +1,6 @@
+# Development image only — it runs `next dev`, not a production build.
+# A multi-stage production image (build + standalone runner) is added when
+# there is a deployment target. See SPEC §24 / §25.
 FROM node:20-alpine
 
 WORKDIR /app
