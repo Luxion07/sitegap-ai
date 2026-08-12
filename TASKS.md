@@ -34,7 +34,8 @@ Tasks:
 - [x] Add Tailwind CSS.
 - [x] Add shadcn/ui setup.
 - [x] Add Dockerfile.
-- [x] Add docker-compose.yml with app + postgres.
+- [x] Connect a hosted Supabase Postgres database. (Superseded the local
+      `docker-compose.yml` + postgres container — see SPEC §24.)
 - [x] Add Prisma.
 - [x] Add initial Prisma schema.
 - [x] Add `.env.example`.
@@ -63,7 +64,7 @@ Do not implement:
 Acceptance criteria:
 
 - `pnpm install` works.
-- `docker compose up --build` starts app and postgres.
+- `pnpm dev` starts the app against the Supabase database.
 - `/` renders.
 - `/admin` renders placeholder.
 - `/api/health` returns OK.
@@ -278,7 +279,8 @@ background worker written in Go, communicating through a Redis queue.
   (same env var names as the Next.js app where possible).
 - Graceful shutdown: finish the current job, mark stale jobs as FAILED.
 - Retry policy: max 1 retry per job, then status FAILED with errorCode.
-- Docker: add `worker` and `redis` services to docker-compose.yml.
+- Docker: introduce a `docker-compose.yml` with `worker` and `redis` services
+  (Postgres stays on Supabase).
 
 ### Tasks
 
@@ -302,4 +304,4 @@ background worker written in Go, communicating through a Redis queue.
 - Killing the worker mid-job does not corrupt data; job ends as FAILED or is
   retried once.
 - All SSRF cases blocked in the Node version are blocked in the Go version.
-- `docker compose up` starts app + postgres + redis + worker.
+- `docker compose up` starts app + redis + worker.
