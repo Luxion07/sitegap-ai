@@ -50,6 +50,29 @@ unless explicitly requested and the docs are updated first.
 - Keep provider-specific LLM logic behind an adapter.
 - Never commit secrets.
 - Ask before changing architecture.
+- Cover branching logic, validation, and security code with Vitest tests in the
+  same phase that introduces it. Do not test thin wrappers around Prisma.
+
+## Commit Convention
+
+Follow Conventional Commits:
+
+```text
+<type>(<scope>): <subject>
+
+<body — why, not what>
+```
+
+Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `chore`, `ci`, `build`,
+`style`.
+
+Rules:
+
+- Imperative mood: `add`, not `added` or `adds`.
+- Lowercase subject, no trailing period, max 72 characters.
+- One commit, one idea. An `and` in the subject usually means two commits.
+- The body explains **why** the change was needed — the diff already shows what
+  changed.
 
 ## Task Discipline
 
