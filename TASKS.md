@@ -23,6 +23,32 @@ Important rule: implement one phase at a time. Do not skip ahead.
 
 ---
 
+## Phase 0 — Testing and CI (ongoing)
+
+Goal: keep the codebase verifiable at every step.
+
+> **Note:** Added 2026-08-12, after Phases 1–3 were already built. Tests and CI
+> are not a product feature but a foundation, so this phase does not "finish" —
+> each later phase adds the tests for the code it introduces.
+
+Tasks:
+
+- [x] Add Vitest (`pnpm test`, `pnpm test:watch`).
+- [x] Cover the audit input schema.
+- [x] Add GitHub Actions CI running lint, typecheck and tests on every PR.
+- [ ] Cover the SSRF validator (together with Phase 4).
+- [ ] Cover LLM JSON validation (together with Phase 5).
+- [ ] Cover Markdown/HTML export with golden-file tests (together with Phase 5).
+- [ ] Add a Playwright e2e test for the audit happy path (after Phase 6).
+
+Acceptance criteria:
+
+- `pnpm test` runs the unit suite locally.
+- CI fails a pull request when lint, typecheck or tests fail.
+- New modules with branching logic ship with tests in the same phase.
+
+---
+
 ## Phase 1 — Scaffold
 
 Goal: create the technical skeleton only.
