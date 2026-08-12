@@ -41,7 +41,7 @@ Tasks:
 - [x] Add `/api/health`.
 - [x] Add placeholder landing page `/`.
 - [x] Add placeholder report page `/audit/[id]`.
-- [ ] Add placeholder admin page `/admin`.
+- [x] Add placeholder admin page `/admin`.
 - [x] Add recommended folder structure:
   - `src/modules/audit`
   - `src/modules/scraping`
