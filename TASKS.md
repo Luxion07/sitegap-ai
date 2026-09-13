@@ -157,15 +157,15 @@ Goal: fetch and extract text from homepage safely.
 
 Tasks:
 
-- [ ] Implement safe URL validation.
-- [ ] Implement SSRF protection.
-- [ ] Block localhost/private/link-local/metadata IPs.
-- [ ] Implement redirect validation.
-- [ ] Add fetch timeout.
-- [ ] Add response size limit.
-- [ ] Require `text/html`.
-- [ ] Extract readable text with HTML parser.
-- [ ] Add fallback for low text extraction.
+- [x] Implement safe URL validation.
+- [x] Implement SSRF protection.
+- [x] Block localhost/private/link-local/metadata IPs.
+- [x] Implement redirect validation.
+- [x] Add fetch timeout.
+- [x] Add response size limit.
+- [x] Require `text/html`.
+- [x] Extract readable text with HTML parser.
+- [x] Add fallback for low text extraction.
 
 Acceptance criteria:
 
