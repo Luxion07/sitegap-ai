@@ -1,5 +1,5 @@
 import { prisma } from "@/db/prisma"
-import { AuditStatus, BusinessType } from "@prisma/client"
+import { AuditStatus, BusinessType, Prisma } from "@prisma/client"
 
 export async function createAudit(data: {
   websiteUrl: string
@@ -19,6 +19,10 @@ export async function updateAudit(
     status?: AuditStatus
     statusMessage?: string | null
     sourceText?: string | null
+    reportJson?: Prisma.InputJsonValue
+    previewJson?: Prisma.InputJsonValue
+    markdownReport?: string | null
+    htmlFaqBlock?: string | null
   }
 ) {
   return prisma.audit.update({ where: { id }, data })

@@ -182,15 +182,15 @@ Goal: generate structured report JSON from extracted text.
 
 Tasks:
 
-- [ ] Create LLM provider adapter.
-- [ ] Add prompt template.
-- [ ] Add clarity category data.
-- [ ] Add JSON schema validation.
-- [ ] Generate report JSON.
-- [ ] Build Markdown report.
-- [ ] Build HTML FAQ block.
-- [ ] Store report in DB.
-- [ ] Set audit status to READY or FAILED.
+- [x] Create LLM provider adapter.
+- [x] Add prompt template.
+- [x] Add clarity category data.
+- [x] Add JSON schema validation.
+- [x] Generate report JSON.
+- [x] Build Markdown report.
+- [x] Build HTML FAQ block.
+- [x] Store report in DB.
+- [x] Set audit status to READY or FAILED.
 
 Acceptance criteria:
 
