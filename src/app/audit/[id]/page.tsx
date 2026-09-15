@@ -2,6 +2,8 @@ import { notFound } from "next/navigation"
 
 import { findAuditById } from "@/modules/audit/audit.repository"
 import { SiteHeader } from "@/components/site-header"
+import { ReportView } from "@/components/report-view"
+import type { Report } from "@/modules/ai/schemas"
 
 const PROCESSING_STEPS = [
   "Reading page content",
@@ -52,10 +54,24 @@ export default async function AuditPage(props: PageProps<"/audit/[id]">) {
           </>
         )}
 
-        {audit.status === "READY" && (
-          <p className="text-[15px] text-muted-foreground">
-            Report ready — the report view is built in a later phase.
-          </p>
+        {audit.status === "READY" && audit.reportJson && (
+          <>
+            <div className="mb-6 flex gap-3">
+              <a
+                href={`/api/audits/${audit.id}/download.md`}
+                className="text-[13.5px] text-primary hover:underline"
+              >
+                Download Markdown report
+              </a>
+              <a
+                href={`/api/audits/${audit.id}/faq.html`}
+                className="text-[13.5px] text-primary hover:underline"
+              >
+                Download FAQ HTML block
+              </a>
+            </div>
+            <ReportView report={audit.reportJson as Report} />
+          </>
         )}
 
         {audit.status === "FAILED" && (
