@@ -4,6 +4,7 @@ import { findAuditById } from "@/modules/audit/audit.repository"
 import { SiteHeader } from "@/components/site-header"
 import { ReportView } from "@/components/report-view"
 import type { Report } from "@/modules/ai/schemas"
+import { CopyButton } from "@/components/copy-button"
 
 const PROCESSING_STEPS = [
   "Reading page content",
@@ -56,19 +57,35 @@ export default async function AuditPage(props: PageProps<"/audit/[id]">) {
 
         {audit.status === "READY" && audit.reportJson && (
           <>
-            <div className="mb-6 flex gap-3">
-              <a
-                href={`/api/audits/${audit.id}/download.md`}
-                className="text-[13.5px] text-primary hover:underline"
-              >
-                Download Markdown report
-              </a>
-              <a
-                href={`/api/audits/${audit.id}/faq.html`}
-                className="text-[13.5px] text-primary hover:underline"
-              >
-                Download FAQ HTML block
-              </a>
+            <div className="mb-6 flex flex-wrap justify-center gap-x-8 gap-y-4">
+              <div className="flex flex-col items-center gap-1">
+                <a
+                  href={`/api/audits/${audit.id}/download.md`}
+                  className="text-[13.5px] text-primary hover:underline"
+                >
+                  Download Markdown report
+                </a>
+                {audit.markdownReport && (
+                  <CopyButton
+                    text={audit.markdownReport}
+                    label="Copy Markdown"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <a
+                  href={`/api/audits/${audit.id}/faq.html`}
+                  className="text-[13.5px] text-primary hover:underline"
+                >
+                  Download FAQ HTML block
+                </a>
+                {audit.htmlFaqBlock && (
+                  <CopyButton
+                    text={audit.htmlFaqBlock}
+                    label="Copy HTML block"
+                  />
+                )}
+              </div>
             </div>
             <ReportView report={audit.reportJson as Report} />
           </>
