@@ -207,13 +207,13 @@ Goal: show the generated report and allow basic exports.
 
 Tasks:
 
-- [ ] Build `/audit/[id]` report page.
-- [ ] Add report sections.
-- [ ] Add copy buttons.
-- [ ] Add Markdown download route.
-- [ ] Add HTML FAQ block route.
-- [ ] Add loading, failed, and ready states.
-- [ ] Hide raw JSON from public UI.
+- [x] Build `/audit/[id]` report page.
+- [x] Add report sections.
+- [x] Add copy buttons.
+- [x] Add Markdown download route.
+- [x] Add HTML FAQ block route.
+- [x] Add loading, failed, and ready states.
+- [x] Hide raw JSON from public UI.
 
 Acceptance criteria:
 

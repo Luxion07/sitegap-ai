@@ -92,9 +92,16 @@ export default async function AuditPage(props: PageProps<"/audit/[id]">) {
         )}
 
         {audit.status === "FAILED" && (
-          <p className="text-[15px] text-muted-foreground">
-            Analysis failed for {audit.websiteUrl}.
-          </p>
+          <>
+            <p className="text-[15px] text-muted-foreground">
+              Analysis failed for {audit.websiteUrl}.
+            </p>
+            {audit.statusMessage && (
+              <p className="mt-2 text-[13.5px] text-muted-foreground">
+                {audit.statusMessage}
+              </p>
+            )}
+          </>
         )}
       </main>
     </div>
