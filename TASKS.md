@@ -233,13 +233,13 @@ Tasks:
 
 - [x] Add `/admin` password form.
 - [x] Add signed HTTP-only admin session cookie.
-- [ ] Add audit table.
-- [ ] Add filters by status.
-- [ ] Add `/admin/audits/[id]`.
-- [ ] Show audit details.
-- [ ] Show error messages.
-- [ ] Add delete action.
-- [ ] Add mark-as-failed action.
+- [x] Add audit table.
+- [x] Add filters by status.
+- [x] Add `/admin/audits/[id]`.
+- [x] Show audit details.
+- [x] Show error messages.
+- [x] Add delete action.
+- [x] Add mark-as-failed action.
 
 Acceptance criteria:
 

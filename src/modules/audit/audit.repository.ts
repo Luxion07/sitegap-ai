@@ -34,3 +34,7 @@ export async function findAllAudits(status?: AuditStatus) {
     orderBy: { createdAt: "desc" },
   })
 }
+
+export async function deleteAudit(id: string) {
+  return prisma.audit.delete({ where: { id } })
+}
