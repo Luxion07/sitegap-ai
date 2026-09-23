@@ -36,9 +36,10 @@ Tasks:
 - [x] Add Vitest (`pnpm test`, `pnpm test:watch`).
 - [x] Cover the audit input schema.
 - [x] Add GitHub Actions CI running lint, typecheck and tests on every PR.
-- [ ] Cover the SSRF validator (together with Phase 4).
-- [ ] Cover LLM JSON validation (together with Phase 5).
-- [ ] Cover Markdown/HTML export with golden-file tests (together with Phase 5).
+- [x] Cover the SSRF validator (together with Phase 4).
+- [x] Cover LLM JSON validation (together with Phase 5).
+- [x] Cover Markdown/HTML export (together with Phase 5) — point assertions,
+      not strict golden-file comparison; revisit if export format churns.
 - [ ] Add a Playwright e2e test for the audit happy path (after Phase 6).
 
 Acceptance criteria:

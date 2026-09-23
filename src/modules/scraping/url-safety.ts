@@ -12,7 +12,9 @@ const BLOCKED_IPV4_RANGES: Array<{ base: string; bits: number }> = [
   { base: "192.168.0.0", bits: 16 }, // private
 ]
 
-const BLOCKED_IPV6_PREFIXES = ["::1", "fe80:", "fc00:", "fd00:"]
+// fc00::/7 (unique local, RFC 4193) covers every address starting with
+// "fc" or "fd" — not just the literal "fc00:"/"fd00:" prefixes.
+const BLOCKED_IPV6_PREFIXES = ["::1", "fe80:", "fc", "fd"]
 
 function ipv4ToInt(ip: string): number {
   return (
