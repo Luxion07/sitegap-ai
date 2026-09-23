@@ -9,4 +9,6 @@ export const createAuditSchema = z.object({
   manualContext: z.string().max(5000).optional(),
 })
 
+export const auditStatusFilterSchema = z.enum(["READY", "FAILED", "PROCESSING"]).optional()
+
 export type CreateAuditInput = z.infer<typeof createAuditSchema>

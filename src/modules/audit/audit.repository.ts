@@ -27,3 +27,10 @@ export async function updateAudit(
 ) {
   return prisma.audit.update({ where: { id }, data })
 }
+
+export async function findAllAudits(status?: AuditStatus) {
+  return prisma.audit.findMany({
+    where: status ? { status } : undefined,
+    orderBy: { createdAt: "desc" },
+  })
+}

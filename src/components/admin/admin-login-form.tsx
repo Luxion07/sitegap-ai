@@ -1,19 +1,35 @@
 "use client"
+
 import { useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export function AdminLoginForm() {
+  const router = useRouter()
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setError("")
+    setLoading(true)
+
     const response = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
     })
-    console.log(response.status)
+
+    if (!response.ok) {
+      setError("Incorrect password.")
+      setLoading(false)
+      return
+    }
+
+    router.refresh()
   }
 
   return (
@@ -27,9 +43,18 @@ export function AdminLoginForm() {
           value={password}
           onChange={(event) => {
             setPassword(event.target.value)
+            setError("")
           }}
+          aria-invalid={Boolean(error)}
         />
-        <Button type="submit">Sign in</Button>
+        <Button type="submit" disabled={loading} className="mt-3 w-full">
+          {loading ? "Signing in..." : "Sign in"}
+        </Button>
+        {error && (
+          <p className="mt-3 text-center text-[12.5px] text-destructive">
+            {error}
+          </p>
+        )}
       </form>
     </div>
   )
