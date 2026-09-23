@@ -231,8 +231,8 @@ Goal: add simple internal monitoring UI.
 
 Tasks:
 
-- [ ] Add `/admin` password form.
-- [ ] Add signed HTTP-only admin session cookie.
+- [x] Add `/admin` password form.
+- [x] Add signed HTTP-only admin session cookie.
 - [ ] Add audit table.
 - [ ] Add filters by status.
 - [ ] Add `/admin/audits/[id]`.

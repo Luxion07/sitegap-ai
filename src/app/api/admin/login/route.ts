@@ -1,11 +1,12 @@
+import { cookies } from "next/headers"
+import { NextRequest, NextResponse } from "next/server"
+
+import { verifyPassword } from "@/modules/admin/admin-password"
 import {
   createSessionToken,
   SESSION_DURATION_MS,
 } from "@/modules/admin/admin-session"
 import { loginSchema } from "@/modules/admin/admin.schemas"
-import { cookies } from "next/headers"
-import { NextRequest, NextResponse } from "next/server"
-import { timingSafeEqual } from "node:crypto"
 
 export async function POST(req: NextRequest) {
   let body: unknown
@@ -27,20 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 400 })
   }
 
-  const password = result.data.password
-  if (!process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ ok: false }, { status: 500 })
-  }
-  const buf1 = Buffer.from(password)
-  const buf2 = Buffer.from(process.env.ADMIN_PASSWORD)
-
-  if (buf1.length !== buf2.length) {
-    return NextResponse.json({ ok: false }, { status: 401 })
-  }
-
-  const succesPass = timingSafeEqual(buf1, buf2)
-
-  if (!succesPass) {
+  if (!verifyPassword(result.data.password)) {
     return NextResponse.json({ ok: false }, { status: 401 })
   }
 
