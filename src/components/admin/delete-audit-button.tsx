@@ -3,26 +3,36 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 
 export function DeleteAuditButton({ auditId }: { auditId: string }) {
   const router = useRouter()
+  const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  async function handleClick() {
-    const confirmed = window.confirm(
-      "Delete this audit permanently? This cannot be undone."
-    )
-    if (!confirmed) return
-
+  async function handleConfirm() {
     setLoading(true)
+    setError("")
+
     const response = await fetch(`/api/admin/audits/${auditId}/delete`, {
       method: "POST",
     })
 
     if (!response.ok) {
       setLoading(false)
-      window.alert("Failed to delete the audit.")
+      setError("Failed to delete the audit.")
       return
     }
 
@@ -30,13 +40,33 @@ export function DeleteAuditButton({ auditId }: { auditId: string }) {
   }
 
   return (
-    <Button
-      type="button"
-      variant="destructive"
-      disabled={loading}
-      onClick={handleClick}
-    >
-      {loading ? "Deleting..." : "Delete audit"}
-    </Button>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger
+        render={<Button type="button" variant="destructive" />}
+      >
+        Delete audit
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete this audit?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This permanently removes the audit and its report. This cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {error && <p className="text-[13px] text-destructive">{error}</p>}
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            type="button"
+            variant="destructive"
+            disabled={loading}
+            onClick={handleConfirm}
+          >
+            {loading ? "Deleting..." : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
