@@ -41,6 +41,13 @@ Tasks:
 - [x] Cover Markdown/HTML export (together with Phase 5) — point assertions,
       not strict golden-file comparison; revisit if export format churns.
 - [ ] Add a Playwright e2e test for the audit happy path (after Phase 6).
+      Deferred 2026-09-23: the happy path needs a real scrape + real LLM
+      call, and Playwright can only intercept browser network traffic, not
+      the server-side fetch inside generateReport(). A real e2e run either
+      costs money and depends on the network every time, or needs a mocked
+      LLM provider reachable from CI - neither fits this project's scope
+      right now. Revisit once there's a concrete reason (e.g. a CI budget,
+      or a test double for the LLM provider already exists for other work).
 
 Acceptance criteria:
 
