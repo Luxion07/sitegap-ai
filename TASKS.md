@@ -113,7 +113,8 @@ Goal: add database models and Prisma workflow.
 Tasks:
 
 - [x] Add `Audit` model.
-- [ ] Add `RateLimitEvent` model.
+- [x] Add `RateLimitEvent` model. (Added in Phase 8, alongside the rate
+      limiter code that actually writes to it — YAGNI deferral from Phase 2.)
 - [x] Add `AuditStatus` enum.
 - [x] Add `BusinessType` enum.
 - [x] Add Prisma migration.
@@ -265,15 +266,15 @@ Goal: make the prototype stable and presentable.
 
 Tasks:
 
-- [ ] Add rate limiting.
-- [ ] Add user-friendly error states.
-- [ ] Add mobile polish.
-- [ ] Add Terms page.
-- [ ] Add Privacy page.
-- [ ] Add basic metadata/SEO.
-- [ ] Add production env checks.
-- [ ] Add lint/typecheck scripts.
-- [ ] Clean README.
+- [x] Add rate limiting.
+- [x] Add user-friendly error states.
+- [x] Add mobile polish.
+- [x] Add Terms page.
+- [x] Add Privacy page.
+- [x] Add basic metadata/SEO.
+- [x] Add production env checks.
+- [x] Add lint/typecheck scripts.
+- [x] Clean README.
 
 Acceptance criteria:
 
