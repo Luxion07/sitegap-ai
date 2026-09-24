@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 
 import { createAuditSchema } from "@/modules/audit/audit.schemas"
+import type { ApiErrorBody } from "@/modules/audit/audit.types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -71,7 +72,12 @@ export function AuditForm() {
       })
 
       if (!response.ok) {
-        setSubmitError("Something went wrong. Please try again.")
+        if (response.status === 429) {
+          const errorBody: ApiErrorBody = await response.json()
+          setSubmitError(errorBody.message)
+        } else {
+          setSubmitError("Something went wrong. Please try again.")
+        }
         setLoading(false)
         return
       }

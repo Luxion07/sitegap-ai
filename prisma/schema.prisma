@@ -42,3 +42,12 @@ model Audit {
 
   @@index([createdAt])
 }
+
+model RateLimitEvent {
+  id        String   @id @default(cuid())
+  ipHash    String
+  action    String
+  createdAt DateTime @default(now())
+
+  @@index([ipHash, action, createdAt])
+}

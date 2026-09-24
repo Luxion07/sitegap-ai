@@ -1,10 +1,16 @@
+import { NextRequest, NextResponse } from "next/server"
+
 import { createAuditSchema } from "@/modules/audit/audit.schemas"
 import { createAuditService } from "@/modules/audit/audit.service"
 import type {
   ApiErrorBody,
   CreateAuditResponse,
 } from "@/modules/audit/audit.types"
-import { NextRequest, NextResponse } from "next/server"
+import { getClientIp } from "@/modules/rate-limit/get-client-ip"
+import {
+  checkAndRecordAuditRateLimit,
+  RateLimitError,
+} from "@/modules/rate-limit/rate-limit"
 
 export async function POST(req: NextRequest) {
   let body: unknown
@@ -36,6 +42,28 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     )
   }
+
+  try {
+    await checkAndRecordAuditRateLimit(getClientIp(req))
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return NextResponse.json<ApiErrorBody>(
+        { error: "RATE_LIMITED", message: error.message },
+        { status: 429 }
+      )
+    }
+    // RATE_LIMIT_SALT missing, DB unreachable, etc. — a misconfigured rate
+    // limiter should never silently let every request through.
+    console.error("[POST /api/audits] rate limit check failed", error)
+    return NextResponse.json<ApiErrorBody>(
+      {
+        error: "INTERNAL_ERROR",
+        message: "Something went wrong. Please try again.",
+      },
+      { status: 500 }
+    )
+  }
+
   try {
     const audit = await createAuditService(parsed.data)
     return NextResponse.json<CreateAuditResponse>(
