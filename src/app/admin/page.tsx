@@ -19,7 +19,7 @@ import { auditStatusFilterSchema } from "@/modules/audit/audit.schemas"
 import { BUSINESS_TYPE_LABELS } from "@/modules/audit/business-type-labels"
 
 export const metadata = {
-  title: "Admin — SiteGap AI",
+  title: "Admin",
   robots: { index: false, follow: false },
 }
 
@@ -55,12 +55,12 @@ export default async function AdminPage(props: PageProps<"/admin">) {
       <SiteHeader />
       <main className="flex flex-1 flex-col px-6 py-12">
         <div className="mx-auto w-full max-w-5xl">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
             <LogoutButton />
           </div>
 
-          <div className="mb-4 flex gap-4 text-[13.5px]">
+          <div className="mb-4 flex flex-wrap gap-4 text-[13.5px]">
             {STATUS_FILTERS.map((filter) => (
               <Link
                 key={filter.label}

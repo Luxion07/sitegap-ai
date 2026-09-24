@@ -1,5 +1,6 @@
 import { AuditForm } from "@/components/audit/audit-form"
 import { SiteHeader } from "@/components/site-header"
+import { SiteFooter } from "@/components/site-footer"
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
             AI website analysis
           </span>
         </div>
-        <h1 className="mb-[18px] max-w-[760px] text-center text-[56px] leading-[1.08] font-bold tracking-[-0.025em]">
+        <h1 className="mb-[18px] max-w-[760px] text-center text-[34px] leading-[1.12] font-bold tracking-[-0.025em] sm:text-[44px] sm:leading-[1.1] md:text-[56px] md:leading-[1.08]">
           Discover what your website is missing
         </h1>
         <p className="mb-12 max-w-[520px] text-center text-lg leading-[1.55] text-muted-foreground">
@@ -21,6 +22,7 @@ export default function Home() {
         </p>
         <AuditForm />
       </main>
+      <SiteFooter />
     </div>
   )
 }

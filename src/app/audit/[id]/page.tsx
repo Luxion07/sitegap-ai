@@ -6,6 +6,13 @@ import { ReportView } from "@/components/report-view"
 import type { Report } from "@/modules/ai/schemas"
 import { CopyButton } from "@/components/copy-button"
 
+export const metadata = {
+  title: "Your audit report",
+  // Each report is reachable by a direct link but contains someone else's
+  // website content — never something we want a crawler to index.
+  robots: { index: false, follow: false },
+}
+
 const PROCESSING_STEPS = [
   "Reading page content",
   "Evaluating clarity signals",

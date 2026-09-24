@@ -12,9 +12,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+const DESCRIPTION =
+  "Paste your URL and get an AI-generated content clarity audit: a " +
+  "readiness score, missing FAQs, and a checklist of what to fix."
+
 export const metadata: Metadata = {
-  title: "SiteGap AI",
-  description: "Discover what your website is missing.",
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: "SiteGap AI — Discover what your website is missing",
+    template: "%s · SiteGap AI",
+  },
+  description: DESCRIPTION,
+  openGraph: {
+    title: "SiteGap AI",
+    description: DESCRIPTION,
+    type: "website",
+  },
 }
 
 export default function RootLayout({

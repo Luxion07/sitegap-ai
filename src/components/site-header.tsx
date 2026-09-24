@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/85 px-10 py-5 backdrop-blur-md">
+    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/85 px-4 py-4 backdrop-blur-md sm:px-6 sm:py-5 md:px-10">
       <Link href="/" className="flex items-center gap-2.5">
         <span className="flex size-[22px] items-center justify-center rounded-md bg-primary">
           <span className="size-2 rounded-sm bg-background" />

@@ -10,7 +10,7 @@ import { findAuditById } from "@/modules/audit/audit.repository"
 import { BUSINESS_TYPE_LABELS } from "@/modules/audit/business-type-labels"
 
 export const metadata = {
-  title: "Audit detail — SiteGap AI",
+  title: "Audit detail",
   robots: { index: false, follow: false },
 }
 
@@ -42,11 +42,11 @@ export default async function AdminAuditDetailPage(
             ← Back to admin
           </Link>
 
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-semibold tracking-tight">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-xl font-semibold tracking-tight break-all sm:text-2xl">
               Audit {audit.id}
             </h1>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {audit.status !== "FAILED" && (
                 <MarkFailedButton auditId={audit.id} />
               )}
@@ -54,7 +54,7 @@ export default async function AdminAuditDetailPage(
             </div>
           </div>
 
-          <dl className="mb-8 grid grid-cols-[160px_1fr] gap-x-4 gap-y-3 text-[13.5px]">
+          <dl className="mb-8 grid grid-cols-[110px_1fr] gap-x-4 gap-y-3 text-[13.5px] sm:grid-cols-[160px_1fr]">
             <dt className="text-muted-foreground">Website URL</dt>
             <dd>{audit.websiteUrl}</dd>
 
