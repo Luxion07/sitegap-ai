@@ -15,7 +15,8 @@ Important rule: implement one phase at a time. Do not skip ahead.
 - Do not add features that are not listed in the current phase.
 - Do not add payments, pricing, Stripe, subscriptions, or billing.
 - Do not add public authentication in the MVP.
-- Do not add RAG, vector DB, chat, widget, PDF upload, or crawling in the MVP.
+- Do not add chat, widget, PDF upload, or crawling in the MVP.
+- RAG and vector search only as scoped in Phase 10 (see AGENTS.md).
 - Do not commit secrets.
 - Use pnpm.
 - Use Tailwind CSS + shadcn/ui.
@@ -290,6 +291,11 @@ Acceptance criteria:
 Goal: move audit generation from the synchronous POST request into a
 background worker written in Go, communicating through a Redis queue.
 
+> **Paused 2026-10-02.** Phases 10–11 go first. Work so far (ARCHITECTURE.md
+> update, Redis service, worker skeleton) is on branch `feat/phase-9-go-worker`.
+> When this phase resumes, Phase 10's retrieval step moves into the Go worker
+> too; tip ingestion stays a TypeScript script.
+
 > **Do not start this phase before Phase 6 is complete and deployed.**
 > This phase intentionally changes the architecture described in
 > ARCHITECTURE.md §8 (Stage 2 → Stage 3). Update ARCHITECTURE.md first.
@@ -340,3 +346,99 @@ background worker written in Go, communicating through a Redis queue.
   retried once.
 - All SSRF cases blocked in the Node version are blocked in the Go version.
 - `docker compose up` starts app + redis + worker.
+
+---
+
+## Phase 10 — Tips Knowledge Base (pgvector + RAG)
+
+Goal: ground each report in curated tips for that kind of business. Tips live
+in Postgres (pgvector); before the LLM call only the most relevant ones are
+retrieved and added to the prompt.
+
+> **Added 2026-10-02, done before Phase 9** (see the pause note there). RAG runs
+> over the curated tips only, never over the scraped page — the page text
+> already fits in the prompt.
+
+### Design
+
+- Tips are hand-written Markdown, one file per `BusinessType`, kept in the repo.
+- `BusinessType` is coarse (a plumber and a dentist are both `LOCAL_SERVICE`).
+  Retrieval filters by business type, then ranks by similarity to the page —
+  similarity is what picks plumbing tips over dental ones.
+- Embeddings come from Gemini (same API key as the LLM). Groq has no embeddings
+  API, so there is no embeddings fallback.
+- 768 dimensions: pgvector's HNSW index supports at most 2,000 dimensions for
+  the `vector` type.
+- Prisma can't read or write `vector` columns, so similarity search uses
+  `$queryRaw` with bound parameters — never string-built SQL.
+- If retrieval fails, the report is generated without tips (graceful
+  degradation). Tips improve a report; they are not required for one.
+
+### Tasks
+
+- [x] Update AGENTS.md, SPEC.md and ARCHITECTURE.md.
+- [ ] Enable the `vector` extension in a Prisma migration.
+- [ ] Add a `KnowledgeChunk` model: business type, source file, content,
+      content hash, `vector(768)` embedding.
+- [ ] Add an HNSW index on the embedding (cosine distance).
+- [ ] Write the tips files (`src/modules/knowledge/tips/*.md`).
+- [ ] Add an embeddings adapter (same pattern as the LLM providers).
+- [ ] Add `pnpm knowledge:ingest`: split files into chunks → embed → save.
+      Unchanged chunks are skipped (content hash), so re-runs are cheap.
+- [ ] Add retrieval: embed page text + manual context (trimmed to the
+      embedding input limit), return top-k chunks by cosine distance,
+      filtered by business type.
+- [ ] Pass retrieved tips into the user prompt as reference data, clearly
+      separated from instructions.
+- [ ] Generate the report without tips when retrieval fails.
+- [ ] Run `EXPLAIN ANALYZE` on the similarity query. Note whether the HNSW
+      index is used — on a small table Postgres may pick a sequential scan.
+- [ ] Tests: chunking, prompt with and without tips, fallback path.
+
+### Acceptance criteria
+
+- `pnpm knowledge:ingest` fills the table; a second run adds no duplicates.
+- A plumber's site gets trade tips, not dental tips.
+- Reports still generate when the embeddings API is down.
+
+---
+
+## Phase 11 — MCP Server
+
+Goal: let MCP clients (Claude Code, Claude Desktop) use sitegap-ai's features
+as tools.
+
+> **Added 2026-10-02, done before Phase 9** (see the pause note there).
+
+### Design
+
+- A second entry point next to the route handlers, not a new service. Tools are
+  thin: validate input with Zod, call an existing `src/modules/*` service,
+  return the result. No business logic in the MCP layer.
+- Runs outside Next.js, so the modules it calls must not import `next/*`.
+- Transport: stdio. The client starts the server as a local process; there is
+  no network port, so no auth in this phase.
+- Only read and create actions. Admin actions (delete, mark as failed) are not
+  exposed: least privilege.
+- Rate limiting is per IP and does not apply over stdio. Acceptable while the
+  server is local-only.
+
+### Tasks
+
+- [ ] Add `@modelcontextprotocol/sdk` and a `pnpm mcp` script (stdio server).
+- [ ] Tool `search_tips` → Phase 10 retrieval.
+- [ ] Tool `create_audit` → the same audit service as `POST /api/audits`.
+- [ ] Tool `get_audit` → status and report for an audit id.
+- [ ] Validate tool inputs with Zod, reusing existing schemas where they exist.
+- [ ] Return failures as MCP tool errors with a safe message, no stack traces.
+- [ ] Register the server in Claude Code (`.mcp.json`) and run each tool from
+      a real client.
+- [ ] Tests: input validation and error mapping for each tool.
+- [ ] Update README: how to connect a client.
+
+### Acceptance criteria
+
+- Claude Code lists the three tools after connecting.
+- `create_audit` with a private-IP URL is blocked, same as the web form.
+- `get_audit` with an unknown id returns a clear tool error, not a crash.
+- No admin or destructive actions are exposed.

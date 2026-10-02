@@ -29,14 +29,18 @@ Do not add:
 - Billing
 - Subscriptions
 - Public user accounts
-- RAG
-- Vector database
 - Chat widget
 - PDF upload
 - Multi-page crawling
 - CRM integrations
 
 unless explicitly requested and the docs are updated first.
+
+Added on request in Phases 10–11 (see `TASKS.md`):
+
+- RAG over a curated tips knowledge base, stored in Postgres with pgvector.
+  Not over the scraped page text — that already fits in the prompt.
+- An MCP server that exposes existing `src/modules/*` logic as tools.
 
 ## Implementation Rules
 

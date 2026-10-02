@@ -219,6 +219,15 @@ flowchart TB
   Admin --> AdminAuth[admin-auth.ts]
   Admin --> AdminService[admin.service.ts]
 
+  Modules --> Knowledge[knowledge — post-MVP, §13]
+  Knowledge --> Tips[tips/*.md]
+  Knowledge --> Ingest[ingest.ts]
+  Knowledge --> Retrieval[retrieval.ts]
+  Knowledge --> Embeddings[providers/gemini-embeddings.ts]
+
+  Root --> MCP[mcp — post-MVP, §14]
+  MCP --> McpServer[server.ts — stdio entry point]
+
   DB --> Prisma[prisma.ts]
 ```
 
@@ -334,11 +343,84 @@ PostgreSQL
 Prisma
 Simple admin page
 No chat
-No RAG
-No vector database
+RAG + pgvector only for the internal tips base (§13)
 No payments
 No subscriptions
 No microservices
 ```
 
 The architecture should be easy to grow, but the first implementation should stay small.
+
+---
+
+## 13. Post-MVP: Tips Knowledge Base (RAG)
+
+Added in Phase 10 (see SPEC §30). RAG here is two separate pipelines:
+
+- **Indexing (offline).** `pnpm knowledge:ingest`, run by hand after the tips
+  change. Turns Markdown into vectors. Never runs during a user request.
+- **Retrieval (online).** Runs inside report generation for every audit: one
+  embeddings call plus one SQL query.
+
+The expensive part (embedding every tip) happens once, not per audit, so the
+request path only pays for embedding the query.
+
+```mermaid
+flowchart LR
+  subgraph Indexing[Indexing — offline, by hand]
+    Tips[tips/*.md] --> Chunk[Split into chunks]
+    Chunk --> Changed{Content hash changed?}
+    Changed -->|no| Skip[Skip]
+    Changed -->|yes| EmbedTip[Embed chunk]
+    EmbedTip --> Store[(KnowledgeChunk<br/>pgvector + HNSW)]
+  end
+
+  subgraph Retrieval[Retrieval — online, per audit]
+    Page[Page text + manual context] --> EmbedQuery[Embed query]
+    EmbedQuery --> Search[Top-k by cosine distance<br/>filtered by business type]
+    Store --> Search
+    Search -->|tips| Prompt[Prompt: tips as reference data]
+    Search -.->|failure| NoTips[Prompt without tips]
+  end
+
+  Gemini[Gemini embeddings API]
+  EmbedTip --> Gemini
+  EmbedQuery --> Gemini
+  Prompt --> LLM[LLM API]
+  NoTips --> LLM
+```
+
+Module boundary: `knowledge` owns the tips, the embeddings adapter and the
+retrieval query. `ai` only receives a list of tip strings and knows nothing
+about vectors, so the prompt code doesn't depend on how tips are stored.
+
+When Phase 9 lands, the Retrieval box moves into the Go worker together with
+report generation. Indexing stays a TypeScript script.
+
+---
+
+## 14. Post-MVP: MCP Server
+
+Added in Phase 11 (see SPEC §31). The MCP server is a second entry point in
+front of the same modules, next to the route handlers. The modules don't know
+whether a call came from a browser or from an AI agent (ports & adapters).
+
+```mermaid
+flowchart LR
+  Browser[Browser] -->|HTTP| Routes[Route handlers<br/>src/app/api]
+  Client[MCP client<br/>Claude Code / Desktop] -->|stdio| MCP[MCP server<br/>src/mcp]
+
+  Routes --> Audit[audit module]
+  Routes --> Admin[admin module]
+  MCP --> Audit
+  MCP --> Knowledge[knowledge module]
+
+  Audit --> DB[(PostgreSQL)]
+  Knowledge --> DB
+  Admin --> DB
+```
+
+- **stdio:** the client starts `pnpm mcp` as a child process and talks over
+  stdin/stdout. No port is opened, so nothing is exposed to the network.
+- **No path to the admin module:** destructive actions stay behind the admin
+  password (least privilege).

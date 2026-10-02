@@ -36,6 +36,8 @@ This technical prototype analyzes a public website homepage and optional manual 
 
 The first version is **not** a chatbot, not RAG, not a knowledge base, and not a website widget. It is a simple report-generation web application.
 
+Post-MVP, report generation is grounded in an internal tips knowledge base (RAG, §30), and an MCP server exposes the app to AI agents (§31). The product is still a report generator — no chat, no Q&A over the client's site.
+
 ---
 
 ## 2. MVP Decisions
@@ -157,7 +159,7 @@ It focuses on:
 - Stripe.
 - Subscriptions.
 - Public dashboard/history.
-- RAG/vector database.
+- RAG/vector database. (Added post-MVP, only for the internal tips knowledge base — see §30.)
 - AI chat.
 - Website chat widget.
 - PDF upload.
@@ -1268,3 +1270,49 @@ LLM provider: keep provider behind adapter
 Deployment: decide later
 Manual text mode: include as optional context from day one
 ```
+
+---
+
+## 30. Post-MVP: Tips Knowledge Base (RAG)
+
+Added 2026-10-02 (`TASKS.md` Phase 10).
+
+### What it does
+
+Before the LLM call, the report generator retrieves a few curated tips that fit the analyzed business and adds them to the prompt. The report then reflects what visitors of *that kind* of business usually ask, not only the generic clarity categories (§9).
+
+### Why retrieval and not a bigger static list
+
+`BusinessType` has only four values, and one value covers very different businesses: a plumber and a dentist are both `LOCAL_SERVICE`. Pasting every tip for a type into the prompt wastes tokens and buries the useful ones. Retrieval filters by business type, then ranks by similarity to the page text, so the prompt gets only the top few tips (default 5).
+
+### Rules
+
+- Tips are hand-written and stored in the repo. The scraped page is never chunked or embedded — it already fits in the prompt.
+- Tips are reference data, not instructions. The prompt keeps them clearly separate, and the §9 rule still applies: a tip suggests what to check for, and is never stated as a fact about the analyzed business.
+- Retrieval is optional. If the embeddings API or the query fails, the report is generated without tips.
+- No user-facing change: the report structure (§8) and JSON schema (§10) stay the same.
+
+### Data
+
+`KnowledgeChunk` table: business type, source file, content, content hash, and a 768-dimension embedding (pgvector, HNSW index, cosine distance). It is filled by `pnpm knowledge:ingest`, never at request time.
+
+---
+
+## 31. Post-MVP: MCP Server
+
+Added 2026-10-02 (`TASKS.md` Phase 11).
+
+### What it does
+
+Exposes sitegap-ai to MCP clients (Claude Code, Claude Desktop) as three tools:
+
+- `search_tips` — query text + business type → the matching tips (§30).
+- `create_audit` — URL, business type, optional manual context → audit id and status. Same validation, SSRF protection and generation as `POST /api/audits` (§17.1).
+- `get_audit` — audit id → status, plus the report when `READY`.
+
+### Rules
+
+- Local only: stdio transport, started by the client as a child process. No network listener, so no auth in this version.
+- No admin actions (delete, mark as failed). The admin area (§18) stays behind its password.
+- Failures come back as MCP tool errors with the same user-facing messages as §22 — never stack traces or secrets.
+- Rate limiting (§15.2) is per IP and does not apply over stdio. Acceptable while local-only; revisit before adding any remote transport.
