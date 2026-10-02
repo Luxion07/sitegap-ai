@@ -27,6 +27,8 @@ An internal `/admin` area (password-protected, signed session cookie) lists all 
 
 Audit creation is rate-limited per IP (3/hour, 10/day) to keep LLM costs bounded.
 
+Report generation itself runs in a separate Go worker (`/worker`, Phase 9), consuming jobs from a Redis queue instead of blocking the request — a background, IO/concurrency-bound task kept out of the request/response web layer on purpose.
+
 See `docs/SPEC.md` for the full functional spec and `docs/ARCHITECTURE.md` for the system design.
 
 ---

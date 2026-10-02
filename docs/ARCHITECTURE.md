@@ -31,13 +31,19 @@ flowchart LR
 
 ---
 
-## 2. MVP Runtime Architecture
+## 2. Runtime Architecture (Stage 3 — current, Phase 9)
+
+Scraping and AI generation no longer run inside the Next.js request. `AuditModule`
+only validates input, writes the `PROCESSING` row, and pushes a job to Redis. A
+separate Go process (`/worker`, see §9) consumes the job, does the slow work, and
+writes the result straight to Postgres. The report page polls for the result
+instead of getting it in the same response.
 
 ```mermaid
 flowchart TB
   subgraph Browser
     Landing[Landing page]
-    Report[Audit report page]
+    Report[Audit report page — polls for status]
     AdminUI[Internal admin UI]
   end
 
@@ -45,10 +51,16 @@ flowchart TB
     Pages[App Router pages]
     Routes[Route handlers / API routes]
     AuditModule[Audit module]
-    ScrapingModule[Scraping module]
-    AIModule[AI report module]
     ExportModule[Markdown + HTML export module]
     AdminModule[Admin module]
+  end
+
+  Queue[(Redis queue)]
+
+  subgraph GoWorker[Go worker — separate process, /worker]
+    Consumer[Job consumer]
+    WorkerScraper[Scraper]
+    WorkerAI[AI report generator]
   end
 
   DB[(PostgreSQL + Prisma)]
@@ -56,25 +68,34 @@ flowchart TB
   Site[External website]
 
   Landing --> Routes
-  Report --> Routes
+  Report -->|GET /api/audits/:id, polling| Routes
   AdminUI --> Routes
 
   Routes --> AuditModule
   Routes --> AdminModule
+  Routes --> ExportModule
 
-  AuditModule --> ScrapingModule
-  AuditModule --> AIModule
-  AuditModule --> ExportModule
-  AuditModule --> DB
+  AuditModule -->|create PROCESSING row| DB
+  AuditModule -->|push job| Queue
 
-  ScrapingModule --> Site
-  AIModule --> LLM
+  Queue --> Consumer
+  Consumer --> WorkerScraper
+  Consumer --> WorkerAI
+  WorkerScraper --> Site
+  WorkerAI --> LLM
+  Consumer -->|write report, READY/FAILED| DB
+
+  ExportModule -->|read pre-generated exports| DB
   AdminModule --> DB
 ```
 
 ---
 
-## 3. Audit Generation Sequence
+## 3. Audit Generation Sequence (Stage 3 — async, current)
+
+`POST /api/audits` no longer waits for scraping or the LLM call — it returns as
+soon as the job is queued. The worker and the polling UI run independently of
+each other after that point (shown as two parallel tracks below).
 
 ```mermaid
 sequenceDiagram
@@ -82,9 +103,9 @@ sequenceDiagram
   participant UI as Next.js UI
   participant API as /api/audits
   participant Audit as Audit service
-  participant Scraper as Scraper service
-  participant AI as AI report generator
+  participant Queue as Redis queue
   participant DB as PostgreSQL
+  participant Worker as Go worker
   participant Site as Target website
   participant LLM as LLM API
 
@@ -92,18 +113,28 @@ sequenceDiagram
   UI->>API: POST /api/audits
   API->>Audit: createAudit(input)
   Audit->>DB: Create audit with PROCESSING status
-  Audit->>Scraper: scrapeHomepage(url)
-  Scraper->>Site: Fetch homepage HTML
-  Site-->>Scraper: HTML response
-  Scraper-->>Audit: Clean extracted text
-  Audit->>AI: generateReport(extractedText, manualText)
-  AI->>LLM: Send structured prompt
-  LLM-->>AI: Structured JSON report
-  AI-->>Audit: Validated report JSON
-  Audit->>DB: Save extracted text, report JSON, exports
-  Audit->>DB: Mark audit as READY
+  Audit->>Queue: push job {auditId}
   Audit-->>API: auditId
-  API-->>UI: Redirect /audit/:id
+  API-->>UI: 201 Created {auditId}
+  UI-->>User: Redirect /audit/:id (shows PROCESSING)
+
+  par Worker processes the job
+    Queue->>Worker: BLPOP job
+    Worker->>Site: Fetch homepage HTML
+    Site-->>Worker: HTML response
+    Worker->>Worker: Extract clean text
+    Worker->>LLM: Send structured prompt
+    LLM-->>Worker: Structured JSON report
+    Worker->>DB: Save report, exports, status READY (or FAILED)
+  and UI polls for the result
+    loop until status is READY or FAILED
+      UI->>API: GET /api/audits/:id
+      API->>DB: Read audit status
+      DB-->>API: status (+ report if READY)
+      API-->>UI: current status
+    end
+  end
+
   UI-->>User: Show generated report
 ```
 
@@ -233,7 +264,11 @@ flowchart TB
 
 ---
 
-## 8. Future Architecture Evolution
+## 8. Architecture Evolution
+
+Stage 3 is the current state as of Phase 9 (highlighted green below). Stages 4-5
+are not planned — they're kept here only as "if this ever needs to scale
+further" reference points, not a roadmap commitment.
 
 ```mermaid
 flowchart LR
@@ -247,7 +282,7 @@ flowchart LR
 
   Stage1Note[One app, one repo, simple deploy]
   Stage2Note[Queue for slow audit generation]
-  Stage3Note[Web app + worker process]
+  Stage3Note[Web app + Go worker process — current]
   Stage4Note[Next.js frontend + NestJS/Fastify API if needed]
   Stage5Note[Separate scraper/AI services only with real scaling need]
 
@@ -256,31 +291,50 @@ flowchart LR
   Stage3 -.-> Stage3Note
   Stage4 -.-> Stage4Note
   Stage5 -.-> Stage5Note
+
+  classDef current fill:#dfffd6,stroke:#2f9e44,stroke-width:2px;
+  class Stage3,Stage3Note current
 ```
 
 ---
 
-## 9. Future Worker Architecture
+## 9. Go Worker — Internal Detail (current, Phase 9)
+
+This is the internals of the `GoWorker` box from §2: what happens inside
+`cmd/worker` for a single job, including the retry policy from `TASKS.md`
+(max 1 retry, then `FAILED` with an `errorCode`).
 
 ```mermaid
 flowchart TB
-  User[User]
-  Web[Next.js web app]
-  Queue[(Job queue / Redis)]
-  Worker[Audit worker]
+  Queue[(Redis queue)]
+  Consumer[Job consumer: BLPOP]
+  Fetch[SSRF-safe fetch + text extraction]
+  AI[LLM adapter + JSON schema validation]
+  Retry{Already retried once?}
+  Ready[Mark READY + save report]
+  Fail[Mark FAILED + errorCode]
   DB[(PostgreSQL)]
   LLM[LLM API]
   Website[Target website]
 
-  User --> Web
-  Web --> DB
-  Web --> Queue
-
-  Queue --> Worker
-  Worker --> Website
-  Worker --> LLM
-  Worker --> DB
+  Queue --> Consumer
+  Consumer --> Fetch
+  Fetch --> Website
+  Fetch -->|success| AI
+  Fetch -->|error| Retry
+  AI --> LLM
+  AI -->|valid JSON| Ready
+  AI -->|invalid JSON or error| Retry
+  Retry -->|no, retry once| Consumer
+  Retry -->|yes, give up| Fail
+  Ready --> DB
+  Fail --> DB
 ```
+
+Graceful shutdown (SIGTERM/SIGINT): the worker stops pulling new jobs from
+`Queue`, finishes the job currently in flight, then exits. A job that was
+mid-flight when the process was killed (not a graceful stop) is picked up as
+stale on next boot and marked `FAILED` rather than left `PROCESSING` forever.
 
 ---
 
@@ -296,8 +350,9 @@ flowchart TD
   P6[Phase 6: Report pages and exports]
   P7[Phase 7: Internal admin]
   P8[Phase 8: Polish and hardening]
+  P9[Phase 9: Go audit worker]
 
-  P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8
+  P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8 --> P9
 ```
 
 ---
