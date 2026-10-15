@@ -85,10 +85,16 @@ export function buildUserPrompt(input: {
   businessType: BusinessType
   manualContext?: string
   extractedText: string
+  tips?: string[]
 }): string {
   const clarityCategories = CLARITY_CATEGORIES.map(
     (category) => `${category.key} — ${category.description}`
   ).join("\n")
+
+  const tipsSection =
+    input.tips && input.tips.length > 0
+      ? `\n\nReference industry tips (what visitors typically look for in this business type — use ONLY as guidance on what gaps to check for; never assume the website has these features unless explicitly stated):\n${input.tips.join("\n\n")}`
+      : ""
 
   return `Analyze the following website content.
 
@@ -105,7 +111,7 @@ Clarity categories to score:
 ${clarityCategories}
 
 Optional manual context:
-${input.manualContext ?? "(none provided)"}
+${input.manualContext ?? "(none provided)"}${tipsSection}
 
 Extracted website text:
 ${input.extractedText}

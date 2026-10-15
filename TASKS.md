@@ -388,9 +388,9 @@ retrieved and added to the prompt.
 - [x] Add retrieval: embed page text + manual context (trimmed to the
       embedding input limit), return top-k chunks by cosine distance,
       filtered by business type.
-- [ ] Pass retrieved tips into the user prompt as reference data, clearly
+- [x] Pass retrieved tips into the user prompt as reference data, clearly
       separated from instructions.
-- [ ] Generate the report without tips when retrieval fails.
+- [x] Generate the report without tips when retrieval fails.
 - [ ] Run `EXPLAIN ANALYZE` on the similarity query. Note whether the HNSW
       index is used — on a small table Postgres may pick a sequential scan.
 - [ ] Tests: chunking, prompt with and without tips, fallback path.

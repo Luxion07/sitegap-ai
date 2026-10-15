@@ -1,5 +1,6 @@
 import type { BusinessType } from "@prisma/client"
 
+import { retrieveTips } from "@/modules/knowledge/retrieval"
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts"
 import { callGemini } from "./providers/gemini-provider"
 import { callGroq } from "./providers/groq-provider"
@@ -71,13 +72,23 @@ export async function generateReport(input: {
   businessType: BusinessType
   manualContext?: string
   extractedText: string
+  tips?: string[]
 }): Promise<Report> {
   const primary = loadPrimaryConfig()
   if (!primary) {
     throw new ReportGenerationError("LLM_FAILED", GENERATION_FAILED_MESSAGE)
   }
 
-  const userPrompt = buildUserPrompt(input)
+  const tips =
+    input.tips ??
+    (await retrieveTips({
+      pageText: input.extractedText,
+      businessType: input.businessType,
+      manualContext: input.manualContext,
+      limit: 5,
+    }))
+
+  const userPrompt = buildUserPrompt({ ...input, tips })
   const fallback = loadFallbackConfig()
 
   let rawText: string
