@@ -391,9 +391,9 @@ retrieved and added to the prompt.
 - [x] Pass retrieved tips into the user prompt as reference data, clearly
       separated from instructions.
 - [x] Generate the report without tips when retrieval fails.
-- [ ] Run `EXPLAIN ANALYZE` on the similarity query. Note whether the HNSW
+- [x] Run `EXPLAIN ANALYZE` on the similarity query. Note whether the HNSW
       index is used — on a small table Postgres may pick a sequential scan.
-- [ ] Tests: chunking, prompt with and without tips, fallback path.
+- [x] Tests: chunking, prompt with and without tips, fallback path.
 
 ### Acceptance criteria
 
