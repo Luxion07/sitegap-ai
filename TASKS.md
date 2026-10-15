@@ -377,12 +377,12 @@ retrieved and added to the prompt.
 ### Tasks
 
 - [x] Update AGENTS.md, SPEC.md and ARCHITECTURE.md.
-- [ ] Enable the `vector` extension in a Prisma migration.
-- [ ] Add a `KnowledgeChunk` model: business type, source file, content,
+- [x] Enable the `vector` extension in a Prisma migration.
+- [x] Add a `KnowledgeChunk` model: business type, source file, content,
       content hash, `vector(768)` embedding.
-- [ ] Add an HNSW index on the embedding (cosine distance).
-- [ ] Write the tips files (`src/modules/knowledge/tips/*.md`).
-- [ ] Add an embeddings adapter (same pattern as the LLM providers).
+- [x] Add an HNSW index on the embedding (cosine distance).
+- [x] Write the tips files (`src/modules/knowledge/tips/*.md`).
+- [x] Add an embeddings adapter (same pattern as the LLM providers).
 - [ ] Add `pnpm knowledge:ingest`: split files into chunks → embed → save.
       Unchanged chunks are skipped (content hash), so re-runs are cheap.
 - [ ] Add retrieval: embed page text + manual context (trimmed to the
