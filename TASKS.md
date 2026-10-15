@@ -383,7 +383,7 @@ retrieved and added to the prompt.
 - [x] Add an HNSW index on the embedding (cosine distance).
 - [x] Write the tips files (`src/modules/knowledge/tips/*.md`).
 - [x] Add an embeddings adapter (same pattern as the LLM providers).
-- [ ] Add `pnpm knowledge:ingest`: split files into chunks → embed → save.
+- [x] Add `pnpm knowledge:ingest`: split files into chunks → embed → save.
       Unchanged chunks are skipped (content hash), so re-runs are cheap.
 - [ ] Add retrieval: embed page text + manual context (trimmed to the
       embedding input limit), return top-k chunks by cosine distance,

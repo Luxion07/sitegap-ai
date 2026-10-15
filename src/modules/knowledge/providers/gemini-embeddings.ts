@@ -7,7 +7,7 @@ export class GeminiEmbeddingsProvider implements EmbeddingsProvider {
   private apiKey: string
   private model: string
 
-  constructor(apiKey?: string, model = "text-embedding-004") {
+  constructor(apiKey?: string, model?: string) {
     const key =
       apiKey ?? process.env.GEMINI_API_KEY ?? process.env.LLM_API_KEY
     if (!key) {
@@ -16,12 +16,14 @@ export class GeminiEmbeddingsProvider implements EmbeddingsProvider {
       )
     }
     this.apiKey = key
-    this.model = model
+    this.model =
+      model ?? process.env.GEMINI_EMBEDDING_MODEL ?? "gemini-embedding-001"
   }
 
   async embedQuery(text: string): Promise<number[]> {
+    const endpointModel = this.model.replace(/^models\//, "")
     const response = await fetch(
-      `${GEMINI_API_BASE}/${this.model}:embedContent`,
+      `${GEMINI_API_BASE}/${endpointModel}:embedContent`,
       {
         method: "POST",
         headers: {
@@ -57,8 +59,13 @@ export class GeminiEmbeddingsProvider implements EmbeddingsProvider {
   async embedBatch(texts: string[]): Promise<number[][]> {
     if (texts.length === 0) return []
 
+    const modelName = this.model.startsWith("models/")
+      ? this.model
+      : `models/${this.model}`
+    const endpointModel = this.model.replace(/^models\//, "")
+
     const response = await fetch(
-      `${GEMINI_API_BASE}/${this.model}:batchEmbedContents`,
+      `${GEMINI_API_BASE}/${endpointModel}:batchEmbedContents`,
       {
         method: "POST",
         headers: {
@@ -67,7 +74,7 @@ export class GeminiEmbeddingsProvider implements EmbeddingsProvider {
         },
         body: JSON.stringify({
           requests: texts.map((t) => ({
-            model: `models/${this.model}`,
+            model: modelName,
             content: {
               parts: [{ text: t.slice(0, 8000) }],
             },
