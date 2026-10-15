@@ -385,7 +385,7 @@ retrieved and added to the prompt.
 - [x] Add an embeddings adapter (same pattern as the LLM providers).
 - [x] Add `pnpm knowledge:ingest`: split files into chunks → embed → save.
       Unchanged chunks are skipped (content hash), so re-runs are cheap.
-- [ ] Add retrieval: embed page text + manual context (trimmed to the
+- [x] Add retrieval: embed page text + manual context (trimmed to the
       embedding input limit), return top-k chunks by cosine distance,
       filtered by business type.
 - [ ] Pass retrieved tips into the user prompt as reference data, clearly
