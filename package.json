@@ -18,10 +18,12 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "knowledge:ingest": "tsx --env-file=.env src/modules/knowledge/ingest.ts"
+    "knowledge:ingest": "tsx --env-file=.env src/modules/knowledge/ingest.ts",
+    "mcp": "tsx --env-file=.env src/mcp/index.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@prisma/client": "^5.22.0",
     "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
