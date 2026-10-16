@@ -119,7 +119,7 @@ pnpm mcp
 To test and inspect tools interactively using the official MCP Inspector:
 
 ```bash
-npx @modelcontextprotocol/inspector pnpm mcp
+npx @modelcontextprotocol/inspector@latest pnpm mcp
 ```
 
 ### Connecting to Clients
