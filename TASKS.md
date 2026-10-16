@@ -325,8 +325,8 @@ background worker written in Go, communicating through a Redis queue.
 
 ### Tasks
 
-- [ ] Update ARCHITECTURE.md (Stage 3 diagram becomes current).
-- [ ] Add `redis` service to docker-compose.yml.
+- [x] Update ARCHITECTURE.md (Stage 3 diagram becomes current).
+- [x] Add `redis` service to docker-compose.yml.
 - [ ] Scaffold Go module in `/worker` (cmd/worker, internal/queue, internal/scraper, internal/ai, internal/db).
 - [ ] Implement Redis job consumer.
 - [ ] Port SSRF-safe fetcher + HTML text extraction to Go.
