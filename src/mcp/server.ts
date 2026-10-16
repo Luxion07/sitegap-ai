@@ -2,6 +2,7 @@ import { createAuditSchema } from "@/modules/audit/audit.schemas"
 import { retrieveTips } from "@/modules/knowledge/retrieval"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { createAuditService } from "@/modules/audit/audit.service"
+import { findAuditById } from "@/modules/audit/audit.repository"
 import { z } from "zod"
 
 export function createMcpServer(): McpServer {
@@ -118,6 +119,64 @@ export function createMcpServer(): McpServer {
             {
               type: "text",
               text: "An error occurred while creating the audit.",
+            },
+          ],
+        }
+      }
+    }
+  )
+
+  server.registerTool(
+    "get_audit",
+    {
+      description: "Get the status and generated report for an audit ID",
+      inputSchema: z.object({
+        id: z.string().min(1, "Audit ID is required").describe("Audit ID"),
+      }),
+    },
+    async ({ id }) => {
+      try {
+        const audit = await findAuditById(id)
+        if (!audit) {
+          return {
+            isError: true,
+            content: [
+              {
+                type: "text",
+                text: `Audit not found: ${id}`,
+              },
+            ],
+          }
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  id: audit.id,
+                  websiteUrl: audit.websiteUrl,
+                  businessType: audit.businessType,
+                  status: audit.status,
+                  statusMessage: audit.statusMessage,
+                  createdAt: audit.createdAt,
+                  report: audit.status === "READY" ? audit.reportJson : null,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        }
+      } catch (error) {
+        console.error("Error occurred while fetching audit:", error)
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text",
+              text: "An error occurred while fetching the audit.",
             },
           ],
         }
