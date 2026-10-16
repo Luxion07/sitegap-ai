@@ -57,7 +57,15 @@ export function createMcpServer(): McpServer {
             ],
           }
         }
-        return { content: tips.map((t) => ({ type: "text", text: t })) }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: tips.join("\n\n"),
+            },
+          ],
+        }
       } catch (error) {
         console.error("Error occurred while searching tips:", error)
         return {
