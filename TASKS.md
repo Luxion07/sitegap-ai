@@ -425,16 +425,16 @@ as tools.
 
 ### Tasks
 
-- [ ] Add `@modelcontextprotocol/sdk` and a `pnpm mcp` script (stdio server).
-- [ ] Tool `search_tips` → Phase 10 retrieval.
-- [ ] Tool `create_audit` → the same audit service as `POST /api/audits`.
-- [ ] Tool `get_audit` → status and report for an audit id.
-- [ ] Validate tool inputs with Zod, reusing existing schemas where they exist.
-- [ ] Return failures as MCP tool errors with a safe message, no stack traces.
-- [ ] Register the server in Claude Code (`.mcp.json`) and run each tool from
+- [x] Add `@modelcontextprotocol/sdk` and a `pnpm mcp` script (stdio server).
+- [x] Tool `search_tips` → Phase 10 retrieval.
+- [x] Tool `create_audit` → the same audit service as `POST /api/audits`.
+- [x] Tool `get_audit` → status and report for an audit id.
+- [x] Validate tool inputs with Zod, reusing existing schemas where they exist.
+- [x] Return failures as MCP tool errors with a safe message, no stack traces.
+- [x] Register the server in Claude Code (`.mcp.json`) and run each tool from
       a real client.
-- [ ] Tests: input validation and error mapping for each tool.
-- [ ] Update README: how to connect a client.
+- [x] Tests: input validation and error mapping for each tool.
+- [x] Update README: how to connect a client.
 
 ### Acceptance criteria
 

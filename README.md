@@ -93,6 +93,68 @@ pnpm lint          # ESLint
 pnpm typecheck     # next typegen + tsc --noEmit
 pnpm format        # Prettier, writes in place
 pnpm build         # runs typecheck + lint first (prebuild), then next build
+pnpm mcp           # start the MCP server over stdio
+```
+
+---
+
+## MCP Server
+
+SiteGap AI provides an MCP (Model Context Protocol) server over `stdio` that exposes core audit and tips retrieval features to AI clients (Claude Code, Claude Desktop, Cursor, etc.).
+
+### Available Tools
+
+- `search_tips` — Search curated business tips by query and business category (`LOCAL_SERVICE`, `B2B_SERVICE`, `AGENCY_CONSULTING`, `OTHER_SERVICE`).
+- `create_audit` — Create and run a website content audit for a business URL with built-in SSRF protection and failure handling.
+- `get_audit` — Check the status and retrieve the generated report JSON for an audit ID.
+
+### Running & Testing
+
+To start the MCP server directly over `stdio`:
+
+```bash
+pnpm mcp
+```
+
+To test and inspect tools interactively using the official MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector pnpm mcp
+```
+
+### Connecting to Clients
+
+#### Claude Code
+
+The repository includes a `.mcp.json` configuration file:
+
+```json
+{
+  "mcpServers": {
+    "sitegap": {
+      "command": "pnpm",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+When running `claude` in this project directory, Claude Code discovers the server automatically.
+
+#### Claude Desktop
+
+Add the following to your `claude_desktop_config.json` (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "sitegap": {
+      "command": "pnpm",
+      "args": ["mcp"],
+      "cwd": "/path/to/sitegap-ai"
+    }
+  }
+}
 ```
 
 ---

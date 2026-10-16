@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sitegap": {
+      "command": "pnpm",
+      "args": ["mcp"]
+    }
+  }
+}
