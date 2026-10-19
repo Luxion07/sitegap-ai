@@ -51,3 +51,8 @@ next-env.d.ts
 
 # Local working notes (deliberately not versioned)
 /docs/needToDo.md
+
+# Go binaries and build artifacts
+/worker/bin/
+/worker/worker*
+
