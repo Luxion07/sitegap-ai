@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"encoding/json"
 )
 
 const QueueKey = "queue:audits"
@@ -43,4 +44,17 @@ func New(redisUrl string) (*Queue, error) {
 
 	return &Queue{client: client}, nil
 
+}
+
+func (q *Queue) PopJob(ctx context.Context) (*AuditJob, error) {
+	res, err := q.client.BLPop(ctx, 0, QueueKey).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var job AuditJob
+	if err := json.Unmarshal([]byte(res[1]), &job); err != nil {
+		return nil, err
+	}
+	return &job, nil
 }

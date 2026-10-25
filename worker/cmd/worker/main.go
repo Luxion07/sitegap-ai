@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"syscall"
 	"sitegap-ai/worker/internal/config"
 	"sitegap-ai/worker/internal/queue"
+	"syscall"
 )
 
 func main() {
@@ -17,14 +17,20 @@ func main() {
 	cfg := config.Load()
 	log.Printf("worker starting with Redis at %s", cfg.RedisURL)
 
-	_, err := queue.New(cfg.RedisURL)
+	q, err := queue.New(cfg.RedisURL)
 	if err != nil {
 		log.Fatalf("failed to connect to Redis: %v", err)
 	}
 	log.Println("connected to Redis successfully!")
+	log.Println("waiting for jobs...")
+	job, err := q.PopJob(ctx)
+	if err != nil {
+		log.Fatalf("failed to pop job from queue: %v", err)
+	}
+	log.Printf("Successfully received job! Audit ID: %s", job.AuditID)
 
 	log.Println("worker starting")
-    <-ctx.Done()
-    log.Println("shutdown signal received, stopping gracefully")
+	<-ctx.Done()
+	log.Println("shutdown signal received, stopping gracefully")
 
 }
