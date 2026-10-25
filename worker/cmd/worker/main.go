@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"os/signal"
 	"sitegap-ai/worker/internal/config"
+	"sitegap-ai/worker/internal/db"
 	"sitegap-ai/worker/internal/queue"
 	"syscall"
-	"errors"
 )
 
 func main() {
@@ -23,6 +24,14 @@ func main() {
 		log.Fatalf("failed to connect to Redis: %v", err)
 	}
 	log.Println("connected to Redis successfully!")
+
+	database, err := db.New(cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("failed to connect to Postgres: %v", err)
+	}
+	defer database.Close()
+	log.Println("connected to PostgreSQL successfully!")
+
 	log.Println("waiting for jobs...")
 
 	for {
@@ -44,6 +53,14 @@ func main() {
 		}
 
 		log.Printf("processing job for audit ID: %s", job.AuditID)
+		auditRecord, err := database.GetAudit(ctx, job.AuditID)
+		if err != nil {
+			log.Printf("audit %s not found in database: %v", job.AuditID, err)
+			continue
+		}
+		log.Printf("found audit in DB: URL=%s, Type=%s, Status=%s",
+			auditRecord.WebsiteURL, auditRecord.BusinessType, auditRecord.Status)
+
 	}
 
 	log.Println("shutdown signal received, stopping gracefully")
