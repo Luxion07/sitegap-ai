@@ -1,11 +1,12 @@
 package queue
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"encoding/json"
 )
 
 const QueueKey = "queue:audits"
@@ -47,8 +48,11 @@ func New(redisUrl string) (*Queue, error) {
 }
 
 func (q *Queue) PopJob(ctx context.Context) (*AuditJob, error) {
-	res, err := q.client.BLPop(ctx, 0, QueueKey).Result()
+	res, err := q.client.BLPop(ctx, 2*time.Second, QueueKey).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

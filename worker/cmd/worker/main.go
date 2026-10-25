@@ -8,6 +8,7 @@ import (
 	"sitegap-ai/worker/internal/config"
 	"sitegap-ai/worker/internal/queue"
 	"syscall"
+	"errors"
 )
 
 func main() {
@@ -23,14 +24,27 @@ func main() {
 	}
 	log.Println("connected to Redis successfully!")
 	log.Println("waiting for jobs...")
-	job, err := q.PopJob(ctx)
-	if err != nil {
-		log.Fatalf("failed to pop job from queue: %v", err)
+
+	for {
+		if ctx.Err() != nil {
+			break
+		}
+
+		job, err := q.PopJob(ctx)
+		if err != nil {
+			if errors.Is(err, context.Canceled) {
+				break
+			}
+			log.Printf("error popping job: %v", err)
+			continue
+		}
+
+		if job == nil {
+			continue
+		}
+
+		log.Printf("processing job for audit ID: %s", job.AuditID)
 	}
-	log.Printf("Successfully received job! Audit ID: %s", job.AuditID)
 
-	log.Println("worker starting")
-	<-ctx.Done()
 	log.Println("shutdown signal received, stopping gracefully")
-
 }
