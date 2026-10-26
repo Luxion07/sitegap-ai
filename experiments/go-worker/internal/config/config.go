@@ -12,6 +12,7 @@ type Config struct {
 }
 
 func Load() *Config {
+	_ = godotenv.Load("../../.env")
 	_ = godotenv.Load("../.env")
 
 	redisURL := os.Getenv("REDIS_URL")

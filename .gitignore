@@ -53,6 +53,6 @@ next-env.d.ts
 /docs/needToDo.md
 
 # Go binaries and build artifacts
-/worker/bin/
-/worker/worker*
+/experiments/go-worker/bin/
+/experiments/go-worker/worker*
 
