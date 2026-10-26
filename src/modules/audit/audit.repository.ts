@@ -2,6 +2,7 @@ import { prisma } from "@/db/prisma"
 import { AuditStatus, BusinessType, Prisma } from "@prisma/client"
 
 export async function createAudit(data: {
+  status?: AuditStatus
   websiteUrl: string
   businessType: BusinessType
   manualContext?: string
