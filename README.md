@@ -1,14 +1,15 @@
 # SiteGap AI
 
-SiteGap AI is a technical prototype for analyzing public website content and generating structured FAQ and content-gap audit reports.
+SiteGap AI is a full-stack application for analyzing public website content and generating structured FAQ and content-gap audit reports.
 
 Core engineering areas covered in this repository:
 
-- Next.js fullstack architecture
-- TypeScript
-- PostgreSQL and Prisma
-- AI-assisted report generation
-- Admin tooling
+- Next.js App Router full-stack architecture & TypeScript
+- PostgreSQL, Prisma, and `pgvector` semantic retrieval (RAG)
+- Async background job processing with Redis & BullMQ (plus a standalone Go consumer spike in `experiments/go-worker`)
+- Multi-provider AI report generation with structured output validation
+- Model Context Protocol (MCP) server over `stdio`
+- Internal admin tooling & rate limiting
 
 This repository does not include production credentials, customer data, or commercial deployment configuration.
 
@@ -18,16 +19,17 @@ This repository does not include production credentials, customer data, or comme
 
 A visitor pastes a public website URL and picks a business type. The app:
 
-1. Safely fetches the homepage (SSRF-protected: blocks private/loopback/link-local IPs, revalidates every redirect).
-2. Extracts readable text from the page.
-3. Sends that text to an LLM to generate a structured report: a clarity score, questions the site already answers, questions it's missing, a ready-to-use FAQ, and a content improvement checklist.
-4. Shows the report at `/audit/[id]`, with Markdown and HTML FAQ exports.
+1. Validates the input, creates an `Audit` record with status `PROCESSING`, enqueues a background job in Redis (`BullMQ`), and immediately redirects to `/audit/[id]`.
+2. In the background worker (`pnpm worker`), safely fetches the homepage (SSRF-protected: blocks private/loopback/link-local IPs, revalidates every redirect) and extracts readable text.
+3. Retrieves relevant domain tips for that business category from PostgreSQL using `pgvector` cosine similarity (RAG).
+4. Sends the extracted page text and retrieved tips to an LLM (Gemini primary with Groq fallback) to generate a structured report: a clarity score, questions the site already answers, questions it's missing, a ready-to-use FAQ, and a content improvement checklist.
+5. Automatically updates `/audit/[id]` via status polling as soon as the report is `READY`, with Markdown and HTML FAQ exports.
 
 An internal `/admin` area (password-protected, signed session cookie) lists all audits, lets an operator inspect a report's raw JSON, delete an audit, or manually mark one as failed.
 
 Audit creation is rate-limited per IP (3/hour, 10/day) to keep LLM costs bounded.
 
-Report generation itself runs in a separate Go worker (`/worker`, Phase 9), consuming jobs from a Redis queue instead of blocking the request — a background, IO/concurrency-bound task kept out of the request/response web layer on purpose.
+> **Architecture Decision (Phase 9):** We initially prototyped a standalone Go worker (`BLPOP` + `pgxpool` + graceful shutdown) in [`experiments/go-worker`](experiments/go-worker/README.md). To keep the SSRF scraper, `pgvector` RAG retrieval, LLM prompt/schema pipeline, and export formatters as a single source of truth across Next.js, the MCP server, and the queue consumer, the production worker runs in TypeScript with BullMQ (`src/worker/index.ts`).
 
 See `docs/SPEC.md` for the full functional spec and `docs/ARCHITECTURE.md` for the system design.
 
@@ -40,9 +42,11 @@ See `docs/SPEC.md` for the full functional spec and `docs/ARCHITECTURE.md` for t
 - pnpm
 - Tailwind CSS
 - shadcn/ui
-- PostgreSQL (Supabase)
+- PostgreSQL (Supabase) + `pgvector`
 - Prisma
+- Redis + BullMQ (`ioredis`)
 - LLM provider adapter (Gemini primary, optional Groq fallback)
+- MCP SDK (`@modelcontextprotocol/sdk`)
 - Vitest
 
 ---
@@ -68,13 +72,16 @@ Read these before implementation:
 ## Local Development
 
 The database is hosted on Supabase — there is no local Postgres container.
+Redis is required locally for the BullMQ audit queue (either via Homebrew `brew services start redis` or `docker compose up -d redis`).
 Fill in `.env` before running migrations (see [Environment Variables](#environment-variables)).
 
 ```bash
 cp env.example .env
-pnpm install          # also runs prisma generate
+docker compose up -d redis   # or use a local Redis instance on port 6379
+pnpm install                 # also runs prisma generate
 pnpm prisma:migrate
-pnpm dev
+pnpm dev                     # terminal 1: Next.js web server
+pnpm worker                  # terminal 2: BullMQ background audit worker
 ```
 
 Prisma commands:
@@ -89,13 +96,15 @@ pnpm prisma:studio
 Other scripts:
 
 ```bash
-pnpm test          # run the Vitest suite once
-pnpm test:watch    # watch mode
-pnpm lint          # ESLint
-pnpm typecheck     # next typegen + tsc --noEmit
-pnpm format        # Prettier, writes in place
-pnpm build         # runs typecheck + lint first (prebuild), then next build
-pnpm mcp           # start the MCP server over stdio
+pnpm worker            # start the BullMQ background audit worker
+pnpm knowledge:ingest  # chunk & embed curated business tips into pgvector
+pnpm mcp               # start the MCP server over stdio
+pnpm test              # run the Vitest suite once
+pnpm test:watch        # watch mode
+pnpm lint              # ESLint
+pnpm typecheck         # next typegen + tsc --noEmit
+pnpm format            # Prettier, writes in place
+pnpm build             # runs typecheck + lint first (prebuild), then next build
 ```
 
 ---
@@ -170,6 +179,7 @@ See `env.example` for the full list with comments. Grouped by what they're for:
 - **LLM provider** (Phase 5) — `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL`, and an optional `LLM_FALLBACK_*` trio.
 - **Admin** (Phase 7) — `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` (signs the session cookie).
 - **Rate limiting** (Phase 8) — `RATE_LIMIT_SALT` (hashes client IPs before they're stored).
+- **Background Queue** (Phase 9) — `REDIS_URL` (Redis connection string for BullMQ, defaults to `redis://localhost:6379` in development).
 
 In production, `src/instrumentation.ts` checks that every required variable is set at server startup and fails fast if one is missing, instead of letting the server boot into a broken state.
 

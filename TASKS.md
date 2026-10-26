@@ -323,12 +323,12 @@ background worker communicating through a Redis queue.
 - [x] Update ARCHITECTURE.md (Stage 3 diagram becomes current).
 - [x] Add `redis` service to docker-compose.yml.
 - [x] Build Go worker spike (`experiments/go-worker`: config, `BLPOP` consumer, `pgxpool` DB client, graceful shutdown, unit tests).
-- [ ] Add `bullmq` and `ioredis` dependencies and configure Redis queue in `src/modules/queue` (or `src/worker`).
-- [ ] Implement BullMQ worker process in `src/worker` reusing `src/modules/*` pipeline + retry & graceful shutdown.
-- [ ] Change `POST /api/audits` (and `createAuditService`) to enqueue jobs instead of running inline generation.
-- [ ] Add `GET /api/audits/[id]` endpoint and polling on `/audit/[id]` report page.
-- [ ] Unit tests for queue producer/worker handler.
-- [ ] Update README (how to run app + Redis + worker locally).
+- [x] Add `bullmq` and `ioredis` dependencies and configure Redis queue in `src/modules/queue` (or `src/worker`).
+- [x] Implement BullMQ worker process in `src/worker` reusing `src/modules/*` pipeline + retry & graceful shutdown.
+- [x] Change `POST /api/audits` (and `createAuditService`) to enqueue jobs instead of running inline generation.
+- [x] Add `GET /api/audits/[id]` endpoint and polling on `/audit/[id]` report page.
+- [x] Unit tests for queue producer/worker handler.
+- [x] Update README (how to run app + Redis + worker locally).
 
 ### Acceptance criteria
 
