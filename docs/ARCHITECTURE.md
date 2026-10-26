@@ -34,10 +34,11 @@ flowchart LR
 ## 2. Runtime Architecture (Stage 3 — current, Phase 9)
 
 Scraping and AI generation no longer run inside the Next.js request. `AuditModule`
-only validates input, writes the `PROCESSING` row, and pushes a job to Redis. A
-separate Go process (`/worker`, see §9) consumes the job, does the slow work, and
-writes the result straight to Postgres. The report page polls for the result
-instead of getting it in the same response.
+only validates input, writes the `PROCESSING` row, and enqueues a job in Redis (`BullMQ`).
+A separate worker process (`src/worker`, see §9) consumes the job, runs the shared
+`src/modules/*` pipeline (`scraping`, `knowledge` RAG, `ai`, `export`), and writes the
+result to Postgres. The report page polls for the result instead of getting it in the
+same response.
 
 ```mermaid
 flowchart TB
@@ -55,12 +56,13 @@ flowchart TB
     AdminModule[Admin module]
   end
 
-  Queue[(Redis queue)]
+  Queue[(Redis queue / BullMQ)]
 
-  subgraph GoWorker[Go worker — separate process, /worker]
-    Consumer[Job consumer]
-    WorkerScraper[Scraper]
-    WorkerAI[AI report generator]
+  subgraph WorkerProcess[Audit worker — separate process, src/worker]
+    Consumer[BullMQ Worker]
+    WorkerScraper[Scraping module]
+    WorkerKnowledge[Knowledge / RAG module]
+    WorkerAI[AI report module]
   end
 
   DB[(PostgreSQL + Prisma)]
@@ -76,12 +78,14 @@ flowchart TB
   Routes --> ExportModule
 
   AuditModule -->|create PROCESSING row| DB
-  AuditModule -->|push job| Queue
+  AuditModule -->|enqueue job| Queue
 
   Queue --> Consumer
   Consumer --> WorkerScraper
+  Consumer --> WorkerKnowledge
   Consumer --> WorkerAI
   WorkerScraper --> Site
+  WorkerKnowledge --> DB
   WorkerAI --> LLM
   Consumer -->|write report, READY/FAILED| DB
 
@@ -282,7 +286,7 @@ flowchart LR
 
   Stage1Note[One app, one repo, simple deploy]
   Stage2Note[Queue for slow audit generation]
-  Stage3Note[Web app + Go worker process — current]
+  Stage3Note[Web app + worker process — current]
   Stage4Note[Next.js frontend + NestJS/Fastify API if needed]
   Stage5Note[Separate scraper/AI services only with real scaling need]
 
@@ -298,21 +302,28 @@ flowchart LR
 
 ---
 
-## 9. Go Worker — Internal Detail (current, Phase 9)
+## 9. Background Worker — Internal Detail (current, Phase 9)
 
-This is the internals of the `GoWorker` box from §2: what happens inside
-`cmd/worker` for a single job, including the retry policy from `TASKS.md`
-(max 1 retry, then `FAILED` with an `errorCode`).
+This is the internals of the `WorkerProcess` box from §2: what happens inside
+`src/worker` for a single job, including the retry policy from `TASKS.md`
+(max 2 attempts with backoff, then `FAILED` with `statusMessage`).
+
+> **ADR Note (`experiments/go-worker`):** We also evaluated a standalone Go
+> consumer (`BLPOP` + `pgxpool`). Production uses the TypeScript `BullMQ` worker
+> so domain logic (`scraping`, `knowledge`/pgvector RAG, `ai` prompts & schemas,
+> `export`) stays a single source of truth across Next.js, the MCP server, and
+> the worker. See `experiments/go-worker/README.md` for details.
 
 ```mermaid
 flowchart TB
-  Queue[(Redis queue)]
-  Consumer[Job consumer: BLPOP]
+  Queue[(Redis queue / BullMQ)]
+  Consumer[BullMQ Worker]
   Fetch[SSRF-safe fetch + text extraction]
+  RAG[pgvector RAG tip retrieval]
   AI[LLM adapter + JSON schema validation]
-  Retry{Already retried once?}
-  Ready[Mark READY + save report]
-  Fail[Mark FAILED + errorCode]
+  Retry{Attempts remaining?}
+  Ready[Mark READY + save report & exports]
+  Fail[Mark FAILED + statusMessage]
   DB[(PostgreSQL)]
   LLM[LLM API]
   Website[Target website]
@@ -320,21 +331,23 @@ flowchart TB
   Queue --> Consumer
   Consumer --> Fetch
   Fetch --> Website
-  Fetch -->|success| AI
+  Fetch -->|success| RAG
   Fetch -->|error| Retry
+  RAG --> DB
+  RAG --> AI
   AI --> LLM
   AI -->|valid JSON| Ready
   AI -->|invalid JSON or error| Retry
-  Retry -->|no, retry once| Consumer
-  Retry -->|yes, give up| Fail
+  Retry -->|yes, backoff retry| Consumer
+  Retry -->|no, give up| Fail
   Ready --> DB
   Fail --> DB
 ```
 
-Graceful shutdown (SIGTERM/SIGINT): the worker stops pulling new jobs from
-`Queue`, finishes the job currently in flight, then exits. A job that was
-mid-flight when the process was killed (not a graceful stop) is picked up as
-stale on next boot and marked `FAILED` rather than left `PROCESSING` forever.
+Graceful shutdown (`SIGTERM`/`SIGINT`): the worker stops pulling new jobs from
+`Queue`, finishes the job currently in flight, then closes its Redis connection.
+Stalled jobs (if the process crashes mid-flight) are automatically recovered or
+failed by `BullMQ`.
 
 ---
 
@@ -350,7 +363,7 @@ flowchart TD
   P6[Phase 6: Report pages and exports]
   P7[Phase 7: Internal admin]
   P8[Phase 8: Polish and hardening]
-  P9[Phase 9: Go audit worker]
+  P9[Phase 9: Async audit worker]
 
   P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7 --> P8 --> P9
 ```

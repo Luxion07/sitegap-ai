@@ -286,66 +286,58 @@ Acceptance criteria:
 
 ---
 
-## Phase 9 — Go Audit Worker (post-MVP)
+## Phase 9 — Async Audit Worker (Redis + BullMQ, with Go Worker Spike)
 
 Goal: move audit generation from the synchronous POST request into a
-background worker written in Go, communicating through a Redis queue.
+background worker communicating through a Redis queue.
 
-> **Paused 2026-10-02.** Phases 10–11 go first. Work so far (ARCHITECTURE.md
-> update, Redis service, worker skeleton) is on branch `feat/phase-9-go-worker`.
-> When this phase resumes, Phase 10's retrieval step moves into the Go worker
-> too; tip ingestion stays a TypeScript script.
-
-> **Do not start this phase before Phase 6 is complete and deployed.**
-> This phase intentionally changes the architecture described in
-> ARCHITECTURE.md §8 (Stage 2 → Stage 3). Update ARCHITECTURE.md first.
+> **Architecture Decision (ADR, 2026-10-26):** We prototyped a standalone Go
+> worker (`BLPOP` + `pgxpool` + graceful shutdown) in `experiments/go-worker`.
+> After completing Phases 10 (pgvector RAG) and 11 (MCP server), we chose
+> **TypeScript + BullMQ** (`src/worker`) for the production worker so that
+> `scraping`, `knowledge` (RAG), `ai` (prompts, Zod schemas, provider fallback),
+> and `export` remain a single source of truth shared across Next.js, the MCP
+> server, and the background worker without cross-language duplication.
 
 ### Architecture change
 
 - `POST /api/audits` no longer runs scraping/AI inline. It validates input,
-  creates the audit with status `PROCESSING`, pushes a job to Redis,
-  and returns immediately.
+  creates the audit with status `PROCESSING`, enqueues a job in Redis (`BullMQ`),
+  and returns `201 Created` immediately.
 - The report page polls `GET /api/audits/[id]` until status is `READY` or `FAILED`.
-- A separate Go service (`/worker`) consumes jobs from Redis:
-  fetch homepage → extract text → call LLM → validate JSON → write report to Postgres.
+- A separate worker process (`src/worker`, started via `pnpm worker`) consumes
+  jobs from Redis and runs the existing `src/modules/*` pipeline:
+  fetch homepage → extract text → retrieve RAG tips → call LLM → validate JSON → write report to Postgres.
+- The Go consumer spike lives in `experiments/go-worker` with its own unit tests and ADR.
 
 ### Constraints
 
-- Go 1.22+, standard project layout (`cmd/worker`, `internal/...`).
-- Redis as the queue (simple `BLPOP`/stream consumer, no heavy frameworks).
-- Reuse the existing Postgres schema; the worker writes to the same `Audit` table.
-- Reimplement SSRF validation in Go with the same rules as the Node version
-  (same blocked ranges, redirect revalidation, timeouts, size limits).
-- LLM call goes through a provider adapter, configurable via env vars
-  (same env var names as the Next.js app where possible).
-- Graceful shutdown: finish the current job, mark stale jobs as FAILED.
-- Retry policy: max 1 retry per job, then status FAILED with errorCode.
-- Docker: introduce a `docker-compose.yml` with `worker` and `redis` services
-  (Postgres stays on Supabase).
+- Redis + `BullMQ` (`ioredis`) for queue management.
+- Reuse existing `src/modules/*` domain logic and Prisma schema (single source of truth).
+- Retry policy: max 2 attempts (1 initial + 1 retry) with backoff, then mark audit `FAILED` with `statusMessage`.
+- Graceful shutdown on `SIGINT` / `SIGTERM`: wait for in-flight jobs before closing the worker.
+- Docker: `docker-compose.yml` provides `redis` for local development (Postgres stays on Supabase).
 
 ### Tasks
 
 - [x] Update ARCHITECTURE.md (Stage 3 diagram becomes current).
 - [x] Add `redis` service to docker-compose.yml.
-- [ ] Scaffold Go module in `/worker` (cmd/worker, internal/queue, internal/scraper, internal/ai, internal/db).
-- [x] Implement Redis job consumer.
-- [ ] Port SSRF-safe fetcher + HTML text extraction to Go.
-- [ ] Implement LLM adapter in Go with strict JSON schema validation.
-- [ ] Write results to Postgres (READY / FAILED + errorCode).
-- [ ] Change `POST /api/audits` to enqueue instead of inline generation.
-- [ ] Add polling on the report page.
-- [ ] Unit tests: SSRF validator, JSON schema validation, queue handler.
-- [ ] Update README (run app + worker locally).
+- [x] Build Go worker spike (`experiments/go-worker`: config, `BLPOP` consumer, `pgxpool` DB client, graceful shutdown, unit tests).
+- [ ] Add `bullmq` and `ioredis` dependencies and configure Redis queue in `src/modules/queue` (or `src/worker`).
+- [ ] Implement BullMQ worker process in `src/worker` reusing `src/modules/*` pipeline + retry & graceful shutdown.
+- [ ] Change `POST /api/audits` (and `createAuditService`) to enqueue jobs instead of running inline generation.
+- [ ] Add `GET /api/audits/[id]` endpoint and polling on `/audit/[id]` report page.
+- [ ] Unit tests for queue producer/worker handler.
+- [ ] Update README (how to run app + Redis + worker locally).
 
 ### Acceptance criteria
 
 - Submitting an audit returns instantly with `PROCESSING`.
 - Worker picks up the job and the report page flips to `READY` without a full
   reload (via polling).
-- Killing the worker mid-job does not corrupt data; job ends as FAILED or is
-  retried once.
-- All SSRF cases blocked in the Node version are blocked in the Go version.
-- `docker compose up` starts app + redis + worker.
+- Killing the worker mid-job or failing an attempt retries once and then marks
+  the audit `FAILED` cleanly.
+- All unit tests pass (`pnpm test` and `go test ./...` inside `experiments/go-worker`).
 
 ---
 
