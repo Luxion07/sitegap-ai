@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header"
 import { ReportView } from "@/components/report-view"
 import type { Report } from "@/modules/ai/schemas"
 import { CopyButton } from "@/components/copy-button"
+import { AuditStatusPoller } from "@/components/audit-status-poller"
 
 export const metadata = {
   title: "Your audit report",
@@ -35,6 +36,7 @@ export default async function AuditPage(props: PageProps<"/audit/[id]">) {
 
         {audit.status === "PROCESSING" && (
           <>
+            <AuditStatusPoller auditId={audit.id} />
             <div className="mb-7 size-14 animate-spin rounded-full border-[3px] border-white/10 border-t-primary" />
             <h2 className="mb-2.5 text-2xl font-semibold tracking-tight">
               We&apos;re analyzing your site...
