@@ -1,5 +1,13 @@
 # SiteGap AI
 
+[![CI](https://github.com/Luxion07/sitegap-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/Luxion07/sitegap-ai/actions/workflows/ci.yml)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16_App_Router-black?logo=nextdotjs&logoColor=white)
+![BullMQ](https://img.shields.io/badge/BullMQ-Redis_Queue-CC342D?logo=redis&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector_RAG-4169E1?logo=postgresql&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-97_passed-brightgreen?logo=vitest&logoColor=white)
+![License](https://img.shields.io/badge/license-All_Rights_Reserved-red)
+
 SiteGap AI is a full-stack application for analyzing public website content and generating structured FAQ and content-gap audit reports.
 
 Core engineering areas covered in this repository:
