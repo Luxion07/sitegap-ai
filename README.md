@@ -35,6 +35,57 @@ See `docs/SPEC.md` for the full functional spec and `docs/ARCHITECTURE.md` for t
 
 ---
 
+## System Architecture
+
+```mermaid
+flowchart LR
+    Browser["Browser (/ & /audit/[id])"]
+    McpClient["MCP Client (Claude / Cursor)"]
+
+    subgraph NextApp["Next.js App Router"]
+        ApiAudits["POST /api/audits\nGET /api/audits/[id]"]
+        SwaggerUI["Swagger UI (/api-docs)"]
+        AdminUI["Admin Area (/admin)"]
+    end
+
+    Redis[("Redis\n(BullMQ Queue)")]
+    Postgres[("Supabase PostgreSQL\n+ pgvector (RAG Tips)")]
+
+    subgraph Worker["Background Worker (pnpm worker)"]
+        Consumer["BullMQ Consumer"]
+        Scraper["SSRF-Safe Scraper"]
+        Rag["RAG Retrieval"]
+        LlmAdapter["LLM Adapter\n(Gemini + Groq Fallback)"]
+    end
+
+    McpServer["MCP Server (pnpm mcp)"]
+
+    Browser -->|"1. Submit URL / Poll Status"| ApiAudits
+    ApiAudits -->|"2. Create PROCESSING row"| Postgres
+    ApiAudits -->|"3. Enqueue auditId"| Redis
+    Redis -->|"4. Consume job"| Consumer
+    Consumer --> Scraper
+    Consumer --> Rag
+    Rag <-->|"Cosine similarity"| Postgres
+    Consumer --> LlmAdapter
+    Consumer -->|"5. Save READY report + exports"| Postgres
+    McpClient <-->|"stdio"| McpServer
+    McpServer --> Postgres
+    McpServer --> Redis
+```
+
+---
+
+## API Documentation (Swagger UI)
+
+Interactive Swagger documentation is generated from inline `@swagger` JSDoc annotations in `src/app/api/**/route.ts`:
+
+- **Swagger UI**: `http://localhost:3000/api-docs`
+- **OpenAPI 3.0 JSON Spec**: `http://localhost:3000/api/swagger.json`
+- **Bruno Collection**: `bruno/sitegap-api`
+
+---
+
 ## Tech Stack
 
 - Next.js App Router
