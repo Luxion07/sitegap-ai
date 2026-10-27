@@ -12,6 +12,46 @@ import {
   RateLimitError,
 } from "@/modules/rate-limit/rate-limit"
 
+/**
+ * @swagger
+ * /api/audits:
+ *   post:
+ *     tags:
+ *       - Audits
+ *     summary: Create and enqueue a website audit
+ *     description: Validates the target URL and business category, enforces per-IP rate limits (3/hour, 10/day), creates an Audit record with status PROCESSING, and enqueues a background job in Redis (BullMQ).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAuditInput'
+ *     responses:
+ *       201:
+ *         description: Audit created and queued for background processing.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CreateAuditResponse'
+ *       400:
+ *         description: Malformed JSON body or validation failure.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorBody'
+ *       429:
+ *         description: Per-IP rate limit exceeded (3/hour or 10/day).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorBody'
+ *       500:
+ *         description: Unexpected internal error or Redis queue unavailable.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiErrorBody'
+ */
 export async function POST(req: NextRequest) {
   let body: unknown
   try {
