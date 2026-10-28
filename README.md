@@ -5,7 +5,7 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16_App_Router-black?logo=nextdotjs&logoColor=white)
 ![BullMQ](https://img.shields.io/badge/BullMQ-Redis_Queue-CC342D?logo=redis&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector_RAG-4169E1?logo=postgresql&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-97_passed-brightgreen?logo=vitest&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-102_passed-brightgreen?logo=vitest&logoColor=white)
 ![License](https://img.shields.io/badge/license-All_Rights_Reserved-red)
 
 SiteGap AI is a full-stack application for analyzing public website content and generating structured FAQ and content-gap audit reports.
