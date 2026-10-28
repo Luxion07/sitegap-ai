@@ -23,6 +23,18 @@ This repository does not include production credentials, customer data, or comme
 
 ---
 
+## Screenshots
+
+**1. Paste a public URL and pick a business type**
+
+![Audit form with a website URL and business type filled in](docs/screenshots/landing.png)
+
+**2. Get a scored report: overall clarity, a per-category breakdown, visitor questions, a ready FAQ and exports**
+
+![Audit report for tennisplaza.com with a 33/100 clarity score and nine category statuses](docs/screenshots/report.png)
+
+---
+
 ## What it does
 
 A visitor pastes a public website URL and picks a business type. The app:
