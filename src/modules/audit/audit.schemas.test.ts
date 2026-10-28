@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { createAuditSchema } from "./audit.schemas"
+import { createAuditSchema, parseAuditPrefill } from "./audit.schemas"
 
 function validInput(overrides: Record<string, unknown> = {}) {
   return {
@@ -76,5 +76,43 @@ describe("createAuditSchema", () => {
     expect(result.error.issues[0].message).toBe(
       "Please enter a valid website URL."
     )
+  })
+})
+
+describe("parseAuditPrefill", () => {
+  it("returns a valid URL and business type as-is", () => {
+    const prefill = parseAuditPrefill({
+      url: "https://example.com",
+      businessType: "B2B_SERVICE",
+    })
+
+    expect(prefill).toEqual({
+      websiteUrl: "https://example.com",
+      businessType: "B2B_SERVICE",
+    })
+  })
+
+  it("returns empty values when params are missing", () => {
+    expect(parseAuditPrefill({})).toEqual({ websiteUrl: "", businessType: "" })
+  })
+
+  it("drops a non-http URL", () => {
+    const prefill = parseAuditPrefill({ url: "javascript:alert(1)" })
+
+    expect(prefill.websiteUrl).toBe("")
+  })
+
+  it("drops an unknown business type", () => {
+    const prefill = parseAuditPrefill({ businessType: "SPACE_TOURISM" })
+
+    expect(prefill.businessType).toBe("")
+  })
+
+  it("drops a param that was repeated in the query string", () => {
+    const prefill = parseAuditPrefill({
+      url: ["https://a.com", "https://b.com"],
+    })
+
+    expect(prefill.websiteUrl).toBe("")
   })
 })

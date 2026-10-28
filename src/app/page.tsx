@@ -1,8 +1,11 @@
 import { AuditForm } from "@/components/audit/audit-form"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { parseAuditPrefill } from "@/modules/audit/audit.schemas"
 
-export default function Home() {
+export default async function Home(props: PageProps<"/">) {
+  const prefill = parseAuditPrefill(await props.searchParams)
+
   return (
     <div className="flex flex-1 flex-col">
       <SiteHeader />
@@ -20,7 +23,13 @@ export default function Home() {
           Paste your URL and we&apos;ll analyze your content clarity, surface
           the FAQs visitors expect, and flag the gaps holding back conversions.
         </p>
-        <AuditForm />
+        {/* The key remounts the form when the prefill changes, e.g. clicking
+            "New audit" on /?url=… must clear the fields, not keep them. */}
+        <AuditForm
+          key={`${prefill.websiteUrl}|${prefill.businessType}`}
+          initialUrl={prefill.websiteUrl}
+          initialBusinessType={prefill.businessType}
+        />
       </main>
       <SiteFooter />
     </div>
