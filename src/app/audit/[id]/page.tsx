@@ -1,5 +1,6 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
-import { DownloadIcon } from "lucide-react"
+import { DownloadIcon, RotateCcwIcon, TriangleAlertIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { findAuditById } from "@/modules/audit/audit.repository"
@@ -126,16 +127,34 @@ export default async function AuditPage(props: PageProps<"/audit/[id]">) {
         )}
 
         {audit.status === "FAILED" && (
-          <>
-            <p className="text-[15px] text-muted-foreground">
-              Analysis failed for {audit.websiteUrl}.
+          <div className="flex max-w-[460px] flex-col items-center text-center">
+            <span className="mb-6 flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <TriangleAlertIcon className="size-6" />
+            </span>
+            <h1 className="mb-2.5 text-2xl font-semibold tracking-tight">
+              We couldn&apos;t analyze this site
+            </h1>
+            <p className="text-[15px] break-all text-muted-foreground">
+              {audit.websiteUrl}
             </p>
             {audit.statusMessage && (
               <p className="mt-2 text-[13.5px] text-muted-foreground">
                 {audit.statusMessage}
               </p>
             )}
-          </>
+            {/* Manual context is left out on purpose: it is free text and has
+                no place in a URL. */}
+            <Link
+              href={`/?${new URLSearchParams({
+                url: audit.websiteUrl,
+                businessType: audit.businessType,
+              })}`}
+              className={cn(buttonVariants(), "mt-8")}
+            >
+              <RotateCcwIcon />
+              Try again
+            </Link>
+          </div>
         )}
       </main>
     </div>

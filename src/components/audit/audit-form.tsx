@@ -27,11 +27,17 @@ const BUSINESS_TYPE_OPTIONS = [
 
 const MAX_MANUAL_CONTEXT_LENGTH = 5000
 
-export function AuditForm() {
+export function AuditForm({
+  initialUrl = "",
+  initialBusinessType = "",
+}: {
+  initialUrl?: string
+  initialBusinessType?: string
+}) {
   const router = useRouter()
 
-  const [url, setUrl] = useState("")
-  const [businessType, setBusinessType] = useState("")
+  const [url, setUrl] = useState(initialUrl)
+  const [businessType, setBusinessType] = useState(initialBusinessType)
   const [manualContext, setManualContext] = useState("")
   const [urlError, setUrlError] = useState("")
   const [typeError, setTypeError] = useState("")
@@ -122,7 +128,10 @@ export function AuditForm() {
           <Label className="mb-2 block text-[13px] font-semibold">
             Business type <span className="text-destructive">*</span>
           </Label>
+          {/* items lets the trigger show the label for a pre-filled value
+              before the popup has ever been opened. */}
           <Select
+            items={BUSINESS_TYPE_OPTIONS}
             value={businessType}
             onValueChange={(value) => {
               setBusinessType(value ?? "")
