@@ -1,10 +1,11 @@
 import type { BusinessType } from "@prisma/client"
 
 import { retrieveTips } from "@/modules/knowledge/retrieval"
+import { computeClarityScore } from "./clarity-score"
 import { buildUserPrompt, SYSTEM_PROMPT } from "./prompts"
 import { callGemini } from "./providers/gemini-provider"
 import { callGroq } from "./providers/groq-provider"
-import { reportSchema, type Report } from "./schemas"
+import { llmReportSchema, type Report } from "./schemas"
 
 const GENERATION_FAILED_MESSAGE = "Report generation failed. Please try again."
 
@@ -130,7 +131,7 @@ export async function generateReport(input: {
     )
   }
 
-  const result = reportSchema.safeParse(parsedJson)
+  const result = llmReportSchema.safeParse(parsedJson)
   if (!result.success) {
     console.error(
       "[generateReport] LLM JSON failed schema validation",
@@ -142,5 +143,9 @@ export async function generateReport(input: {
     )
   }
 
-  return result.data
+  const { categories } = result.data.clarityScore
+  return {
+    ...result.data,
+    clarityScore: { overall: computeClarityScore(categories), categories },
+  }
 }

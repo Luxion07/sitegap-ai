@@ -6,7 +6,6 @@ import { CLARITY_CATEGORIES } from "./clarity-categories"
 const JSON_SHAPE_TEMPLATE = `{
   "analyzedScope": { "pagesAnalyzed": ["string"], "note": "string" },
   "clarityScore": {
-    "overall": 0,
     "categories": [
       {
         "key": "TRUST | PRICING | PROCESS | SCOPE | LOGISTICS | PAYMENT | RISK | CONVERSION | OBJECTIONS",

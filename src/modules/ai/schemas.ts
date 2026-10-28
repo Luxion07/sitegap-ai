@@ -11,22 +11,23 @@ const faqConfidence = z.enum([
   "MISSING_NEEDS_CONFIRMATION",
 ])
 
-export const reportSchema = z.object({
+const clarityCategorySchema = z.object({
+  key: z.enum(CLARITY_CATEGORY_KEYS),
+  label: z.string(),
+  status: categoryStatus,
+  priority,
+  note: z.string(),
+})
+
+// What the LLM must return. It has no overall score on purpose — that number
+// is computed in code from the category statuses (see clarity-score.ts).
+export const llmReportSchema = z.object({
   analyzedScope: z.object({
     pagesAnalyzed: z.array(z.string()),
     note: z.string(),
   }),
   clarityScore: z.object({
-    overall: z.number().min(0).max(100),
-    categories: z.array(
-      z.object({
-        key: z.enum(CLARITY_CATEGORY_KEYS),
-        label: z.string(),
-        status: categoryStatus,
-        priority,
-        note: z.string(),
-      })
-    ),
+    categories: z.array(clarityCategorySchema),
   }),
   businessSummary: z.object({
     nameGuess: z.string().nullable(),
@@ -78,4 +79,13 @@ export const reportSchema = z.object({
   ),
 })
 
+// What we store and render: the LLM output plus the computed overall score.
+export const reportSchema = llmReportSchema.extend({
+  clarityScore: z.object({
+    overall: z.number().min(0).max(100),
+    categories: z.array(clarityCategorySchema),
+  }),
+})
+
+export type ClarityCategory = z.infer<typeof clarityCategorySchema>
 export type Report = z.infer<typeof reportSchema>
