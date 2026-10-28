@@ -1,10 +1,19 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, type ComponentProps } from "react"
+import { CopyIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 type CopyStatus = "idle" | "copied" | "error"
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+function CopyButton({
+  text,
+  label,
+  variant,
+  size,
+}: {
+  text: string
+  label: string
+} & Pick<ComponentProps<typeof Button>, "variant" | "size">) {
   const [status, setStatus] = useState<CopyStatus>("idle")
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -22,7 +31,8 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   }
 
   return (
-    <Button type="button" onClick={handleClick}>
+    <Button type="button" variant={variant} size={size} onClick={handleClick}>
+      <CopyIcon />
       {status === "copied"
         ? "Copied!"
         : status === "error"
