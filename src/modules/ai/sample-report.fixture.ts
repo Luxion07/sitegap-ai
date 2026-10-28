@@ -7,7 +7,8 @@ export const sampleReport: Report = {
     note: "Homepage only.",
   },
   clarityScore: {
-    overall: 62,
+    // PARTIAL (0.5) + MISSING (0) over 2 categories — matches computeClarityScore.
+    overall: 25,
     categories: [
       {
         key: "TRUST",

@@ -48,6 +48,19 @@ describe("generateReport", () => {
     expect(callGroq).not.toHaveBeenCalled()
   })
 
+  it("ignores any overall score the model sends and computes it from categories", async () => {
+    callGemini.mockResolvedValue(
+      JSON.stringify({
+        ...sampleReport,
+        clarityScore: { ...sampleReport.clarityScore, overall: 3 },
+      })
+    )
+
+    const result = await generateReport(baseInput)
+
+    expect(result.clarityScore.overall).toBe(25)
+  })
+
   it("throws without calling any provider when no fallback is configured and the primary fails", async () => {
     callGemini.mockRejectedValue(new Error("Gemini API error 503"))
 
