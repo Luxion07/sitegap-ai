@@ -14,7 +14,8 @@ services:
     # Chromium needs more shared memory than Docker's 64 MB default
     shm_size: "1gb"
     security_opt:
-      # Playwright's profile: lets Chromium's sandbox run as a non-root user
+      # Docker's default profile + clone/setns/unshare, so Chromium's sandbox
+      # runs as a non-root user (copied from sitegap-renderer)
       - seccomp=./docker/renderer/seccomp_profile.json
     # The renderer exits when Chromium crashes; Docker starts it again
     restart: unless-stopped
