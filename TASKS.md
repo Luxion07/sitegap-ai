@@ -486,7 +486,8 @@ cannot read, by asking the `sitegap-renderer` service to render them.
 - [x] Tests: escalation only on `EXTRACTION_EMPTY`; no escalation without
       `RENDERER_URL`; renderer error or short text → the original
       `EXTRACTION_EMPTY`; rendered text returned on success.
-- [ ] Mark ADR action items 1 and 10–13 as done.
+- [x] Mark ADR action items 10–13 as done (item 1: logging done, the
+      past-failure count was never taken — noted in the ADR).
 
 ### Not in this phase
 

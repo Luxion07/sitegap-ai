@@ -241,6 +241,7 @@ check has nothing to reach.
 **Before building**
 1. [ ] Count `FAILED` audits whose `statusMessage` comes from `EXTRACTION_EMPTY`,
    and log which provider produced the text once escalation exists.
+   *(Logging done in Phase 12; the count of past failures was never taken.)*
 
 **`sitegap-renderer` repository**
 2. [x] Scaffold NestJS with gRPC transport and `renderer.proto` (v1).
@@ -252,15 +253,16 @@ check has nothing to reach.
 6. [x] `grpc.health.v1` health service.
 7. [x] Dockerfile on a pinned `mcr.microsoft.com/playwright` image, non-root
    user, with an init process for zombie reaping.
-8. [ ] CI: lint, typecheck, tests. Publish the image to GHCR.
-   *(CI done; the image is not published yet.)*
+8. [x] CI: lint, typecheck, tests. Publish the image to GHCR.
+   *(Published as `ghcr.io/luxion07/sitegap-renderer:0.1.0`, renderer Phase 8.)*
 9. [x] Integration tests against a local HTTP server:
    - a page whose text appears only after JavaScript runs → text returned;
    - a page whose script calls `127.0.0.1` → that request is blocked.
 
 **sitegap repository** (a new phase in `TASKS.md` first, per `AGENTS.md`)
-10. [ ] Add the phase to `TASKS.md`; update `ARCHITECTURE.md` §2 and §8.
-11. [ ] `rendered-scraper.ts` gRPC client with a 20 s deadline. Unit tests for the
+10. [x] Add the phase to `TASKS.md`; update `ARCHITECTURE.md` §2 and §8.
+11. [x] `rendered-scraper.ts` gRPC client with a 20 s deadline. Unit tests for the
     status → `ScrapeError` mapping and for the escalation rule.
-12. [ ] Escalation in `scraper.service.ts`, enabled by `RENDERER_URL`.
-13. [ ] `renderer` service in `docker-compose.yml`; README section.
+    *(Statuses are logged, not mapped to `ScrapeError`: see Phase 12 in `TASKS.md`.)*
+12. [x] Escalation in `scraper.service.ts`, enabled by `RENDERER_URL`.
+13. [x] `renderer` service in `docker-compose.yml`; README section.
