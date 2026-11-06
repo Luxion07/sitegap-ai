@@ -563,6 +563,8 @@ Reason:
 
 Trade-off accepted for MVP: JS-only single-page apps and protected sites may return too little text. When that happens, return `EXTRACTION_EMPTY` and prompt the user to paste manual context.
 
+**Update (Phase 12):** client-rendered sites get a second try. When the basic scraper fails with `EXTRACTION_EMPTY` and `RENDERER_URL` is set, the worker asks the separate `sitegap-renderer` service (headless Chromium, gRPC) for the rendered text. Other failures do not escalate. If the renderer fails too, the user still sees `EXTRACTION_EMPTY`. Decision and trade-offs: [ADR-0001](adr/0001-headless-renderer-service.md).
+
 ### MVP extraction
 
 1. Fetch only the exact homepage URL the user provides.
@@ -596,10 +598,15 @@ MVP provider:
 BasicScrapeProvider — plain fetch + HTML extraction
 ```
 
+Fallback provider (Phase 12):
+
+```text
+RenderedScrapeProvider — gRPC call to sitegap-renderer, only after EXTRACTION_EMPTY
+```
+
 Future providers:
 
 ```text
-HeadlessBrowserScrapeProvider
 FirecrawlScrapeProvider
 ```
 

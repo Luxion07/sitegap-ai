@@ -466,7 +466,7 @@ cannot read, by asking the `sitegap-renderer` service to render them.
 
 ### Tasks
 
-- [ ] Update SPEC.md §14 (a headless browser is now the fallback),
+- [x] Update SPEC.md §14 (a headless browser is now the fallback),
       ARCHITECTURE.md §2 and §8, and the scope note in AGENTS.md.
 - [ ] Copy `renderer.proto` to `proto/sitegap/renderer/v1/`; add a
       `proto:generate` script and commit the generated client.

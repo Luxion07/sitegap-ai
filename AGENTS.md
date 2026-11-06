@@ -36,11 +36,14 @@ Do not add:
 
 unless explicitly requested and the docs are updated first.
 
-Added on request in Phases 10–11 (see `TASKS.md`):
+Added on request in Phases 10–12 (see `TASKS.md`):
 
 - RAG over a curated tips knowledge base, stored in Postgres with pgvector.
   Not over the scraped page text — that already fits in the prompt.
 - An MCP server that exposes existing `src/modules/*` logic as tools.
+- Rendering client-rendered homepages through the separate `sitegap-renderer`
+  service (gRPC), only as a fallback after `EXTRACTION_EMPTY`. Still the
+  homepage only — no crawling.
 
 ## Implementation Rules
 
