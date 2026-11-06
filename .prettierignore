@@ -16,3 +16,6 @@ docs
 AGENTS.md
 CLAUDE.md
 README.md
+
+# Generated from proto/ by `pnpm proto:generate` — never edit by hand
+src/modules/scraping/generated

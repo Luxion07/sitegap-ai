@@ -468,9 +468,9 @@ cannot read, by asking the `sitegap-renderer` service to render them.
 
 - [x] Update SPEC.md §14 (a headless browser is now the fallback),
       ARCHITECTURE.md §2 and §8, and the scope note in AGENTS.md.
-- [ ] Copy `renderer.proto` to `proto/sitegap/renderer/v1/`; add a
+- [x] Copy `renderer.proto` to `proto/sitegap/renderer/v1/`; add a
       `proto:generate` script and commit the generated client.
-- [ ] Add `@grpc/grpc-js`.
+- [x] Add `@grpc/grpc-js`.
 - [ ] `src/modules/scraping/providers/rendered-scraper.ts`: gRPC client with a
       20 s deadline; returns `{ text, finalUrl }` or throws with the gRPC
       status.
