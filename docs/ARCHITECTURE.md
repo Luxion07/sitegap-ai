@@ -40,6 +40,11 @@ A separate worker process (`src/worker`, see §9) consumes the job, runs the sha
 result to Postgres. The report page polls for the result instead of getting it in the
 same response.
 
+When the basic scraper finds too little text (`EXTRACTION_EMPTY`), the scraping module
+asks a separate service, `sitegap-renderer`, to render the page in headless Chromium
+over gRPC (Phase 12, [ADR-0001](adr/0001-headless-renderer-service.md)). It is optional:
+without `RENDERER_URL` the worker never calls it.
+
 ```mermaid
 flowchart TB
   subgraph Browser
@@ -65,6 +70,8 @@ flowchart TB
     WorkerAI[AI report module]
   end
 
+  Renderer[sitegap-renderer — separate service, headless Chromium, no secrets]
+
   DB[(PostgreSQL + Prisma)]
   LLM[LLM API]
   Site[External website]
@@ -85,6 +92,8 @@ flowchart TB
   Consumer --> WorkerKnowledge
   Consumer --> WorkerAI
   WorkerScraper --> Site
+  WorkerScraper -->|gRPC Render, only on EXTRACTION_EMPTY| Renderer
+  Renderer --> Site
   WorkerKnowledge --> DB
   WorkerAI --> LLM
   Consumer -->|write report, READY/FAILED| DB
@@ -299,6 +308,12 @@ flowchart LR
   classDef current fill:#dfffd6,stroke:#2f9e44,stroke-width:2px;
   class Stage3,Stage3Note current
 ```
+
+> **Note (Phase 12):** `sitegap-renderer` is a separate service, but it is not a
+> Stage 5 step: it was split out for isolation, not scale. Headless Chromium runs
+> untrusted JavaScript, needs hundreds of MB of memory and crashes in ways a Node
+> worker does not, so it runs in its own container that holds no secrets (the
+> Bulkhead pattern). See [ADR-0001](adr/0001-headless-renderer-service.md).
 
 ---
 
