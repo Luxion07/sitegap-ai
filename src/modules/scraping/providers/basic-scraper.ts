@@ -5,7 +5,7 @@ import { assertSafeUrl } from "../url-safety"
 const FETCH_TIMEOUT_MS = 8000
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 const MAX_REDIRECTS = 3
-const MIN_EXTRACTED_CHARS = 200
+export const MIN_EXTRACTED_CHARS = 200
 const MAX_EXTRACTED_CHARS = 40000
 const USER_AGENT = "SiteGapAI-Bot/1.0 (+https://sitegap.ai)"
 
