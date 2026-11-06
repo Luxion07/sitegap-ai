@@ -19,3 +19,6 @@ README.md
 
 # Generated from proto/ by `pnpm proto:generate` — never edit by hand
 src/modules/scraping/generated
+
+# Copied verbatim from sitegap-renderer — keep identical to the original
+docker/renderer/seccomp_profile.json

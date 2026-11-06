@@ -3,3 +3,18 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+  # Optional headless renderer for client-rendered sites (Phase 12, ADR-0001).
+  # Turn it on with RENDERER_URL="localhost:50051" in .env.
+  renderer:
+    image: ghcr.io/luxion07/sitegap-renderer:0.1.0
+    ports:
+      # Loopback only: the renderer has no authentication
+      - "127.0.0.1:50051:50051"
+    # Chromium needs more shared memory than Docker's 64 MB default
+    shm_size: "1gb"
+    security_opt:
+      # Playwright's profile: lets Chromium's sandbox run as a non-root user
+      - seccomp=./docker/renderer/seccomp_profile.json
+    # The renderer exits when Chromium crashes; Docker starts it again
+    restart: unless-stopped

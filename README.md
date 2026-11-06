@@ -155,6 +155,17 @@ pnpm dev                     # terminal 1: Next.js web server
 pnpm worker                  # terminal 2: BullMQ background audit worker
 ```
 
+### Optional: headless renderer
+
+Client-rendered sites (React/Vue SPAs) often fail with `EXTRACTION_EMPTY`, because their text only appears after JavaScript runs. The worker can then ask [sitegap-renderer](https://github.com/Luxion07/sitegap-renderer) to render the page in headless Chromium ([ADR-0001](docs/adr/0001-headless-renderer-service.md)):
+
+```bash
+docker compose up -d renderer   # pulls ghcr.io/luxion07/sitegap-renderer:0.1.0
+# then set RENDERER_URL="localhost:50051" in .env and restart `pnpm worker`
+```
+
+Without `RENDERER_URL` the worker never calls the renderer. Its logs show which provider produced the text, e.g. `[scraping] example.com: text from renderer`.
+
 Prisma commands:
 
 ```bash
@@ -251,6 +262,7 @@ See `env.example` for the full list with comments. Grouped by what they're for:
 - **Admin** (Phase 7) — `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` (signs the session cookie).
 - **Rate limiting** (Phase 8) — `RATE_LIMIT_SALT` (hashes client IPs before they're stored).
 - **Background Queue** (Phase 9) — `REDIS_URL` (Redis connection string for BullMQ, defaults to `redis://localhost:6379` in development).
+- **Headless renderer** (Phase 12) — `RENDERER_URL` (optional `host:port` of sitegap-renderer; empty means the renderer is never called).
 
 In production, `src/instrumentation.ts` checks that every required variable is set at server startup and fails fast if one is missing, instead of letting the server boot into a broken state.
 
