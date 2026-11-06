@@ -434,3 +434,73 @@ as tools.
 - `create_audit` with a private-IP URL is blocked, same as the web form.
 - `get_audit` with an unknown id returns a clear tool error, not a crash.
 - No admin or destructive actions are exposed.
+
+---
+
+## Phase 12 — Rendered Scraping (sitegap-renderer)
+
+Goal: audit client-rendered sites (React/Vue SPAs) that the basic scraper
+cannot read, by asking the `sitegap-renderer` service to render them.
+
+> **Added 2026-11-06.** Design: [ADR-0001](docs/adr/0001-headless-renderer-service.md),
+> action items 1 and 10–13. The renderer itself is built and published as
+> `ghcr.io/luxion07/sitegap-renderer:0.1.0`.
+
+### Design
+
+- Tiered scraping: the basic scraper runs first. Only `EXTRACTION_EMPTY`
+  escalates to the renderer; timeouts, oversized and non-HTML responses do not.
+- The worker calls the renderer over gRPC from inside the BullMQ job, with a
+  20 s deadline. No second queue.
+- The renderer is optional. With `RENDERER_URL` unset, nothing changes.
+- A renderer failure never changes what the user sees: the worker logs the
+  gRPC status and throws the original `EXTRACTION_EMPTY`. Rendered text
+  shorter than 200 characters counts as `EXTRACTION_EMPTY` too. (The ADR maps
+  each status to a `ScrapeError`; here the status is only logged, because a
+  different error message would change today's behavior.)
+- The contract is copied, not shared: `renderer.proto` v1 verbatim from the
+  renderer repository, TypeScript types generated with `ts-proto`, the same
+  tool the renderer uses.
+- The renderer has no authentication, so its port is published on
+  `127.0.0.1` only.
+
+### Tasks
+
+- [ ] Update SPEC.md §14 (a headless browser is now the fallback),
+      ARCHITECTURE.md §2 and §8, and the scope note in AGENTS.md.
+- [ ] Copy `renderer.proto` to `proto/sitegap/renderer/v1/`; add a
+      `proto:generate` script and commit the generated client.
+- [ ] Add `@grpc/grpc-js`.
+- [ ] `src/modules/scraping/providers/rendered-scraper.ts`: gRPC client with a
+      20 s deadline; returns `{ text, finalUrl }` or throws with the gRPC
+      status.
+- [ ] Escalation in `scraper.service.ts`, enabled by `RENDERER_URL`
+      (`host:port`). Add the variable to `env.example`.
+- [ ] Log which provider produced the text (`basic` or `renderer`) and, when
+      escalation fails, the gRPC status (ADR action item 1).
+- [ ] `renderer` service in `docker-compose.yml`: pinned image `0.1.0`,
+      port `127.0.0.1:50051:50051`, `shm_size: 1gb`, the Playwright seccomp
+      profile copied to `docker/renderer/seccomp_profile.json`,
+      `restart: unless-stopped`.
+- [ ] README: how to start the renderer and turn it on.
+- [ ] Tests: escalation only on `EXTRACTION_EMPTY`; no escalation without
+      `RENDERER_URL`; renderer error or short text → the original
+      `EXTRACTION_EMPTY`; rendered text returned on success.
+- [ ] Mark ADR action items 1 and 10–13 as done.
+
+### Not in this phase
+
+- Rendering every site ("always render") — the browser is the fallback only.
+- Retries inside the gRPC client — the BullMQ job already retries.
+- Health checks from the worker — the deadline and the fallback already cover
+  a renderer that is down.
+
+### Acceptance criteria
+
+- Without `RENDERER_URL`, existing tests pass unchanged and audits behave as
+  before.
+- With `docker compose up`, a client-rendered site that used to fail with
+  `EXTRACTION_EMPTY` gets a `READY` report.
+- With the renderer stopped, the same audit fails with today's message, at
+  most 20 s later, and the worker keeps running.
+- `docker compose ps` shows the renderer port bound to `127.0.0.1` only.
