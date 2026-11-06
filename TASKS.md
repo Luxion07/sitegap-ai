@@ -478,11 +478,11 @@ cannot read, by asking the `sitegap-renderer` service to render them.
       (`host:port`). Add the variable to `env.example`.
 - [x] Log which provider produced the text (`basic` or `renderer`) and, when
       escalation fails, the gRPC status (ADR action item 1).
-- [ ] `renderer` service in `docker-compose.yml`: pinned image `0.1.0`,
+- [x] `renderer` service in `docker-compose.yml`: pinned image `0.1.0`,
       port `127.0.0.1:50051:50051`, `shm_size: 1gb`, the Playwright seccomp
       profile copied to `docker/renderer/seccomp_profile.json`,
       `restart: unless-stopped`.
-- [ ] README: how to start the renderer and turn it on.
+- [x] README: how to start the renderer and turn it on.
 - [x] Tests: escalation only on `EXTRACTION_EMPTY`; no escalation without
       `RENDERER_URL`; renderer error or short text → the original
       `EXTRACTION_EMPTY`; rendered text returned on success.
