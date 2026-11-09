@@ -79,12 +79,14 @@ flowchart LR
     end
 
     McpServer["MCP Server (pnpm mcp)"]
+    Renderer["sitegap-renderer (headless Chromium)"]
 
     Browser -->|"1. Submit URL / Poll Status"| ApiAudits
     ApiAudits -->|"2. Create PROCESSING row"| Postgres
     ApiAudits -->|"3. Enqueue auditId"| Redis
     Redis -->|"4. Consume job"| Consumer
     Consumer --> Scraper
+    Scraper -.->|"gRPC, only on EXTRACTION_EMPTY"| Renderer
     Consumer --> Rag
     Rag <-->|"Cosine similarity"| Postgres
     Consumer --> LlmAdapter

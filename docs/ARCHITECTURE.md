@@ -116,10 +116,11 @@ sequenceDiagram
   participant UI as Next.js UI
   participant API as /api/audits
   participant Audit as Audit service
-  participant Queue as Redis queue
+  participant Queue as Redis queue (BullMQ)
   participant DB as PostgreSQL
-  participant Worker as Go worker
+  participant Worker as Audit worker
   participant Site as Target website
+  participant Renderer as sitegap-renderer
   participant LLM as LLM API
 
   User->>UI: Enter URL + optional manual text
@@ -132,15 +133,22 @@ sequenceDiagram
   UI-->>User: Redirect /audit/:id (shows PROCESSING)
 
   par Worker processes the job
-    Queue->>Worker: BLPOP job
+    Queue->>Worker: job {auditId}
     Worker->>Site: Fetch homepage HTML
     Site-->>Worker: HTML response
     Worker->>Worker: Extract clean text
+    opt Too little text (EXTRACTION_EMPTY) and RENDERER_URL set
+      Worker->>Renderer: gRPC Render(url), deadline 20 s
+      Renderer->>Site: Open page in headless Chromium
+      Renderer-->>Worker: Rendered text
+    end
+    Worker->>DB: Retrieve top tips (pgvector)
+    DB-->>Worker: Tips for the business type
     Worker->>LLM: Send structured prompt
     LLM-->>Worker: Structured JSON report
     Worker->>DB: Save report, exports, status READY (or FAILED)
   and UI polls for the result
-    loop until status is READY or FAILED
+    loop every 2 s until status is READY or FAILED
       UI->>API: GET /api/audits/:id
       API->>DB: Read audit status
       DB-->>API: status (+ report if READY)
