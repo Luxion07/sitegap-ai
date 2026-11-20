@@ -169,7 +169,7 @@ practical gain.
 ## Action items
 
 **`sitegap-crawler` repository** (phases in its `TASKS.md`)
-1. [ ] SPEC, ARCHITECTURE, TASKS.
+1. [x] SPEC, ARCHITECTURE, TASKS.
 2. [ ] Scaffold: module, CLI, lint, CI.
 3. [ ] Fetch one page through the SSRF guard; port the `url-safety.test.ts`
    cases.
